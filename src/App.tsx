@@ -32,18 +32,34 @@ const ShutterTransition = ({ onComplete }: { onComplete: () => void, key?: strin
     <motion.div
       initial={{ opacity: 1 }}
       animate={{ opacity: 0 }}
-      transition={{ duration: 1, ease: [0.19, 1, 0.22, 1] }}
+      transition={{ duration: 1, delay: 2, ease: [0.19, 1, 0.22, 1] }}
       onAnimationComplete={onComplete}
-      className="fixed inset-0 z-[95] bg-brand-bg flex items-center justify-center pointer-events-none"
+      className="fixed inset-0 z-[95] bg-brand-bg flex flex-col items-center justify-center pointer-events-none"
     >
       <motion.div
-        initial={{ opacity: 0, y: 10, filter: "blur(5px)" }}
-        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-        exit={{ opacity: 0, y: -10, filter: "blur(5px)" }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="text-black text-[10px] uppercase tracking-[0.8em] font-black"
+        key="aadarsh-sah"
+        initial={{ opacity: 0, y: 30, filter: "blur(20px)", scale: 0.9 }}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)", scale: 1 }}
+        transition={{ duration: 1, ease: [0.19, 1, 0.22, 1] }}
+        className="flex flex-col items-center"
       >
-        Aadarsh Sah
+        <h2 className="text-4xl md:text-7xl font-black uppercase tracking-tighter text-black text-center">
+          Aadarsh <span className="text-brand-orange">Sah</span>
+        </h2>
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: "100%" }}
+          transition={{ delay: 0.5, duration: 0.8 }}
+          className="h-[1px] bg-black/10 mt-4 max-w-[200px]"
+        />
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+          className="mt-4 text-[10px] uppercase tracking-[0.8em] font-black text-black/30"
+        >
+          Visual Artist
+        </motion.p>
       </motion.div>
     </motion.div>
   );
@@ -55,38 +71,91 @@ const Preloader = ({ onComplete }: { onComplete: () => void, key?: string }) => 
 
   useEffect(() => {
     if (index < words.length) {
-      const timeout = setTimeout(() => setIndex(index + 1), 600);
+      const timeout = setTimeout(() => setIndex(index + 1), 700);
       return () => clearTimeout(timeout);
     } else {
-      setTimeout(onComplete, 800);
+      setTimeout(onComplete, 1000);
     }
   }, [index, onComplete]);
 
   return (
     <motion.div 
       initial={{ opacity: 1 }}
-      exit={{ opacity: 0, filter: "blur(20px)" }}
-      transition={{ duration: 1, ease: [0.19, 1, 0.22, 1] }}
+      exit={{ opacity: 0, filter: "blur(40px)", scale: 1.1 }}
+      transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
       className="fixed inset-0 z-[100] bg-black flex items-center justify-center overflow-hidden"
     >
-      <div className="relative">
+      {/* Film Grain Overlay */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat" />
+      
+      {/* Cinematic Background Glows */}
+      <motion.div 
+        animate={{ 
+          scale: [1, 1.2, 1],
+          opacity: [0.1, 0.2, 0.1],
+          x: [0, 20, 0],
+          y: [0, -20, 0]
+        }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-1/4 left-1/4 w-[50vw] h-[50vw] bg-brand-orange/20 rounded-full blur-[120px]"
+      />
+      <motion.div 
+        animate={{ 
+          scale: [1.2, 1, 1.2],
+          opacity: [0.05, 0.15, 0.05],
+          x: [0, -30, 0],
+          y: [0, 30, 0]
+        }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-1/4 right-1/4 w-[40vw] h-[40vw] bg-white/10 rounded-full blur-[100px]"
+      />
+
+      <div className="relative flex items-center justify-center">
         <AnimatePresence mode="wait">
-          <motion.h2 
+          <motion.div
             key={index}
-            initial={{ opacity: 0, y: 20, scale: 0.9, filter: "blur(10px)", letterSpacing: "0.2em" }}
-            animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)", letterSpacing: "0.05em" }}
-            exit={{ opacity: 0, y: -20, scale: 1.1, filter: "blur(10px)", letterSpacing: "0.2em" }}
-            transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
-            className="text-5xl md:text-8xl font-black text-white tracking-tighter"
+            className="relative"
           >
-            {words[index] || "VISUAL"}
-          </motion.h2>
+            {/* Main Text */}
+            <motion.h2 
+              initial={{ opacity: 0, y: 20, scale: 0.95, filter: "blur(15px)", letterSpacing: "0.25em" }}
+              animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)", letterSpacing: "0.1em" }}
+              exit={{ opacity: 0, y: -20, scale: 1.05, filter: "blur(15px)", letterSpacing: "0.25em" }}
+              transition={{ duration: 0.7, ease: [0.19, 1, 0.22, 1] }}
+              className="text-4xl md:text-8xl font-black text-white tracking-tighter relative z-10"
+            >
+              {words[index] || "VISUAL"}
+            </motion.h2>
+
+            {/* Cinematic Glow Layer */}
+            <motion.h2 
+              initial={{ opacity: 0, scale: 0.95, filter: "blur(25px)" }}
+              animate={{ opacity: 0.5, scale: 1.02, filter: "blur(15px)" }}
+              exit={{ opacity: 0, scale: 1.05, filter: "blur(25px)" }}
+              transition={{ duration: 0.7, ease: [0.19, 1, 0.22, 1] }}
+              className="absolute inset-0 text-4xl md:text-8xl font-black text-brand-orange tracking-tighter z-0 pointer-events-none"
+            >
+              {words[index] || "VISUAL"}
+            </motion.h2>
+
+            {/* Shimmer Effect */}
+            <motion.div
+              initial={{ x: "-100%" }}
+              animate={{ x: "100%" }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "linear", repeatDelay: 0.5 }}
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg] z-20 pointer-events-none"
+            />
+          </motion.div>
         </AnimatePresence>
-        
+      </div>
+
+      {/* Progress Bar (Minimal) */}
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-32 h-[1px] bg-white/10 overflow-hidden">
         <motion.div 
-          animate={{ opacity: [0, 0.05, 0] }}
-          transition={{ duration: 1.2, repeat: Infinity }}
-          className="absolute inset-0 bg-brand-orange blur-3xl opacity-20"
+          initial={{ width: 0 }}
+          animate={{ width: `${((index + 1) / words.length) * 100}%` }}
+          transition={{ duration: 0.5 }}
+          className="h-full bg-brand-orange"
         />
       </div>
     </motion.div>
@@ -222,10 +291,36 @@ const Hero = () => {
           </motion.p>
           <motion.h1 
             variants={itemVariants}
-            className="text-huge font-black uppercase mb-8 animate-slam"
+            className="text-5xl md:text-7xl lg:text-8xl font-black uppercase mb-8 relative leading-[0.9] tracking-tight"
           >
-            <span className="glitch-text inline-block" data-text="visual">visual</span><br />
-            <span className="glitch-text inline-block" data-text="motion">motion</span>
+            <div className="relative overflow-hidden">
+              <motion.span 
+                initial={{ y: "100%", opacity: 0, letterSpacing: "0.2em" }}
+                animate={{ y: 0, opacity: 1, letterSpacing: "-0.02em" }}
+                transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
+                className="block text-black" 
+              >
+                AADARSH
+              </motion.span>
+            </div>
+            <div className="relative overflow-hidden">
+              <motion.span 
+                initial={{ y: "100%", opacity: 0, letterSpacing: "0.2em" }}
+                animate={{ y: 0, opacity: 1, letterSpacing: "-0.02em" }}
+                transition={{ duration: 1.2, delay: 0.1, ease: [0.19, 1, 0.22, 1] }}
+                className="block text-brand-orange" 
+              >
+                SAH
+              </motion.span>
+            </div>
+            
+            {/* Minimal Accent Line */}
+            <motion.div 
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 1.5, delay: 0.8, ease: [0.19, 1, 0.22, 1] }}
+              className="absolute -left-6 top-0 w-1 h-full bg-black/5 origin-top hidden md:block"
+            />
           </motion.h1>
           
           <motion.div variants={itemVariants} className="max-w-md">

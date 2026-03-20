@@ -27,44 +27,66 @@ import {
 
 // --- Components ---
 
-const Preloader = ({ onComplete }: { onComplete: () => void }) => {
+const ShutterTransition = ({ onComplete }: { onComplete: () => void, key?: string }) => {
+  return (
+    <motion.div
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 0 }}
+      transition={{ duration: 1, ease: [0.19, 1, 0.22, 1] }}
+      onAnimationComplete={onComplete}
+      className="fixed inset-0 z-[95] bg-brand-bg flex items-center justify-center pointer-events-none"
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 10, filter: "blur(5px)" }}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        exit={{ opacity: 0, y: -10, filter: "blur(5px)" }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="text-black text-[10px] uppercase tracking-[0.8em] font-black"
+      >
+        Aadarsh Sah
+      </motion.div>
+    </motion.div>
+  );
+};
+
+const Preloader = ({ onComplete }: { onComplete: () => void, key?: string }) => {
   const words = ["STORYTELLING", "CINEMATOGRAPHY", "EDITING", "VISION", "MOTION"];
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
     if (index < words.length) {
-      const timeout = setTimeout(() => setIndex(index + 1), 800);
+      const timeout = setTimeout(() => setIndex(index + 1), 600);
       return () => clearTimeout(timeout);
     } else {
-      setTimeout(onComplete, 1200);
+      setTimeout(onComplete, 800);
     }
   }, [index, onComplete]);
 
   return (
     <motion.div 
       initial={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      exit={{ opacity: 0, filter: "blur(20px)" }}
+      transition={{ duration: 1, ease: [0.19, 1, 0.22, 1] }}
       className="fixed inset-0 z-[100] bg-black flex items-center justify-center overflow-hidden"
     >
       <div className="relative">
         <AnimatePresence mode="wait">
           <motion.h2 
             key={index}
-            initial={{ opacity: 0, y: 40, scale: 0.5, filter: "blur(10px)" }}
-            animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-            exit={{ opacity: 0, y: -40, scale: 1.5, filter: "blur(10px)" }}
-            transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
-            className="text-6xl md:text-9xl font-black text-white tracking-tighter"
+            initial={{ opacity: 0, y: 20, scale: 0.9, filter: "blur(10px)", letterSpacing: "0.2em" }}
+            animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)", letterSpacing: "0.05em" }}
+            exit={{ opacity: 0, y: -20, scale: 1.1, filter: "blur(10px)", letterSpacing: "0.2em" }}
+            transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
+            className="text-5xl md:text-8xl font-black text-white tracking-tighter"
           >
             {words[index] || "VISUAL"}
           </motion.h2>
         </AnimatePresence>
         
-        {/* Flash effect */}
         <motion.div 
-          animate={{ opacity: [0, 0.1, 0] }}
-          transition={{ duration: 0.8, repeat: Infinity }}
-          className="absolute inset-0 bg-brand-orange blur-3xl"
+          animate={{ opacity: [0, 0.05, 0] }}
+          transition={{ duration: 1.2, repeat: Infinity }}
+          className="absolute inset-0 bg-brand-orange blur-3xl opacity-20"
         />
       </div>
     </motion.div>
@@ -153,28 +175,60 @@ const Navbar = () => {
 };
 
 const Hero = () => {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.5
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 100, opacity: 0, filter: "blur(10px)" },
+    visible: { 
+      y: 0, 
+      opacity: 1, 
+      filter: "blur(0px)",
+      transition: { duration: 1.2, ease: [0.19, 1, 0.22, 1] }
+    }
+  };
+
+  const imageVariants = {
+    hidden: { scale: 1.2, opacity: 0, x: 100 },
+    visible: { 
+      scale: 1, 
+      opacity: 1, 
+      x: 0,
+      transition: { duration: 1.5, ease: [0.19, 1, 0.22, 1] }
+    }
+  };
+
   return (
     <section id="home" className="min-h-screen pt-32 pb-20 px-6 overflow-hidden">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <motion.div 
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
         >
           <motion.p 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.2, duration: 1 }}
+            variants={itemVariants}
             className="text-[10px] md:text-xs uppercase tracking-[0.4em] font-bold text-black/40 mb-6"
           >
             "Editing is where the movie is made."
           </motion.p>
-          <h1 className="text-huge font-black uppercase mb-8 animate-slam">
+          <motion.h1 
+            variants={itemVariants}
+            className="text-huge font-black uppercase mb-8 animate-slam"
+          >
             <span className="glitch-text inline-block" data-text="visual">visual</span><br />
             <span className="glitch-text inline-block" data-text="motion">motion</span>
-          </h1>
+          </motion.h1>
           
-          <div className="max-w-md">
+          <motion.div variants={itemVariants} className="max-w-md">
             <p className="text-lg font-medium mb-2">Aadarsh Sah — Video Editor & Cameraman</p>
             <p className="text-black/60 mb-8 leading-relaxed">
               Welcome to a visual journey that transcends time and space. Discover the artistry of moments captured in motion.
@@ -200,20 +254,20 @@ const Hero = () => {
             <div className="grid grid-cols-2 gap-8">
               <div>
                 <p className="text-4xl font-black tracking-tighter">+250k</p>
-                <p className="text-xs uppercase font-bold text-black/40 tracking-widest mt-1">Videos reaching a wide audience</p>
+                <p className="text-xs uppercase font-bold text-black/40 tracking-widest mt-1">views on social media</p>
               </div>
               <div>
                 <p className="text-4xl font-black tracking-tighter">+800k</p>
                 <p className="text-xs uppercase font-bold text-black/40 tracking-widest mt-1">Hours watched, engaging storytelling</p>
               </div>
             </div>
-          </div>
+          </motion.div>
         </motion.div>
 
         <motion.div 
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, delay: 0.2 }}
+          variants={imageVariants}
+          initial="hidden"
+          animate="visible"
           className="relative"
         >
           {/* Main Hero Image Card */}
@@ -578,18 +632,37 @@ const Footer = () => {
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showContent, setShowContent] = useState(false);
 
   return (
     <div className="relative">
-      <AnimatePresence>
-        {isLoading && <Preloader onComplete={() => setIsLoading(false)} />}
+      <AnimatePresence mode="wait">
+        {isLoading && (
+          <Preloader 
+            key="preloader" 
+            onComplete={() => {
+              setIsLoading(false);
+              setIsTransitioning(true);
+            }} 
+          />
+        )}
+        {isTransitioning && (
+          <ShutterTransition 
+            key="shutter" 
+            onComplete={() => {
+              setIsTransitioning(false);
+              setShowContent(true);
+            }} 
+          />
+        )}
       </AnimatePresence>
 
-      {!isLoading && (
+      {showContent && (
         <motion.div 
-          initial={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
-          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-          transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
         >
           <Navbar />
           <Hero />

@@ -4,35 +4,315 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useScroll, useTransform, useMotionValue, animate, useInView, useSpring } from 'motion/react';
 import { 
   Camera, 
   Video, 
   Film, 
   Scissors, 
-  Instagram, 
-  Twitter, 
-  Facebook, 
-  Youtube, 
+  Palette, 
+  Smartphone, 
   ArrowUpRight, 
+  Plus, 
+  Play, 
+  Instagram, 
+  Youtube, 
+  Twitter, 
+  MessageCircle, 
   Menu, 
-  X,
-  Plus,
-  Play,
-  ChevronRight,
-  Palette,
-  Smartphone,
-  MessageCircle
+  X 
 } from 'lucide-react';
 
 // --- Components ---
+
+const ClickSpark = () => {
+  const [sparks, setSparks] = useState<{ id: number; x: number; y: number }[]>([]);
+  const [isTouch, setIsTouch] = useState(false);
+
+  useEffect(() => {
+    setIsTouch('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    
+    const handleClick = (e: MouseEvent) => {
+      if ('ontouchstart' in window || navigator.maxTouchPoints > 0) return;
+      const newSpark = { id: Date.now(), x: e.clientX, y: e.clientY };
+      setSparks((prev) => [...prev, newSpark]);
+      setTimeout(() => {
+        setSparks((prev) => prev.filter((s) => s.id !== newSpark.id));
+      }, 1000);
+    };
+
+    window.addEventListener("click", handleClick);
+    return () => window.removeEventListener("click", handleClick);
+  }, []);
+
+  if (isTouch) return null;
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[99999] overflow-hidden">
+      <AnimatePresence>
+        {sparks.map((spark) => (
+          <motion.div
+            key={spark.id}
+            initial={{ opacity: 1, scale: 0 }}
+            animate={{ opacity: 0, scale: 1.5 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            style={{
+              position: "absolute",
+              left: spark.x,
+              top: spark.y,
+              x: "-50%",
+              y: "-50%",
+            }}
+          >
+            {[...Array(8)].map((_, i) => (
+              <motion.div
+                key={i}
+                initial={{ x: 0, y: 0, opacity: 1 }}
+                animate={{
+                  x: Math.cos((i * 45 * Math.PI) / 180) * 60,
+                  y: Math.sin((i * 45 * Math.PI) / 180) * 60,
+                  opacity: 0,
+                  scale: 0,
+                }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="absolute w-1 h-4 bg-brand-orange rounded-full"
+                style={{
+                  rotate: i * 45,
+                  transformOrigin: "center bottom",
+                }}
+              />
+            ))}
+            <motion.div
+              initial={{ scale: 0, opacity: 0.5 }}
+              animate={{ scale: 2, opacity: 0 }}
+              className="w-12 h-12 border-2 border-brand-orange rounded-full"
+            />
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+const CursorFollower = () => {
+  const cursorX = useMotionValue(-100);
+  const cursorY = useMotionValue(-100);
+  const [isPressed, setIsPressed] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
+  const [isTouch, setIsTouch] = useState(false);
+
+  const OFFSET = 24;
+  const springConfig = { damping: 25, stiffness: 300 };
+  const springX = useSpring(cursorX, springConfig);
+  const springY = useSpring(cursorY, springConfig);
+
+  useEffect(() => {
+    setIsTouch('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) return;
+
+    const moveCursor = (e: MouseEvent) => {
+      cursorX.set(e.clientX + OFFSET);
+      cursorY.set(e.clientY + OFFSET);
+      
+      // Check if hovering over interactive elements
+      const target = e.target as HTMLElement;
+      const isInteractive = target.closest('button, a, input, [role="button"]');
+      setIsHovering(!!isInteractive);
+    };
+    const handleMouseDown = () => setIsPressed(true);
+    const handleMouseUp = () => setIsPressed(false);
+
+    window.addEventListener('mousemove', moveCursor);
+    window.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', moveCursor);
+      window.removeEventListener('mousedown', handleMouseDown);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [cursorX, cursorY]);
+
+  if (isTouch) return null;
+
+  return (
+    <>
+      <div className="film-grain" />
+      {/* Main Dot */}
+      <motion.div
+        className="fixed top-0 left-0 w-4 h-4 bg-brand-orange rounded-full pointer-events-none z-[9999] mix-blend-difference hidden md:block"
+        animate={{
+          scale: isPressed ? 0.8 : isHovering ? 2.5 : 1,
+          backgroundColor: isHovering ? "#FFFFFF" : "#FF9F1C",
+          borderRadius: isHovering ? "20%" : "50%",
+        }}
+        transition={{ type: "spring", stiffness: 400, damping: 20 }}
+        style={{
+          translateX: springX,
+          translateY: springY,
+          x: '-50%',
+          y: '-50%',
+        }}
+      />
+      {/* Subtle Trail Dot */}
+      <motion.div
+        className="fixed top-0 left-0 w-1.5 h-1.5 bg-brand-orange/30 rounded-full pointer-events-none z-[9998] mix-blend-difference hidden md:block"
+        style={{
+          translateX: useSpring(cursorX, { damping: 40, stiffness: 200 }),
+          translateY: useSpring(cursorY, { damping: 40, stiffness: 200 }),
+          x: '-50%',
+          y: '-50%',
+        }}
+      />
+    </>
+  );
+};
+
+const Magnetic = ({ children, className }: { children: React.ReactNode, className?: string, key?: React.Key }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  const handleMouse = (e: React.MouseEvent) => {
+    if (!ref.current) return;
+    const { clientX, clientY } = e;
+    const { height, width, left, top } = ref.current.getBoundingClientRect();
+    const middleX = clientX - (left + width / 2);
+    const middleY = clientY - (top + height / 2);
+    setPosition({ x: middleX * 0.3, y: middleY * 0.3 });
+  };
+
+  const reset = () => {
+    setPosition({ x: 0, y: 0 });
+  };
+
+  const { x, y } = position;
+  return (
+    <motion.div
+      style={{ position: "relative" }}
+      ref={ref}
+      onMouseMove={handleMouse}
+      onMouseLeave={reset}
+      animate={{ x, y }}
+      transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+const ScrambleText = ({ text }: { text: string }) => {
+  const [displayText, setDisplayText] = useState(text);
+  const chars = "!<>-_\\/[]{}—=+*^?#________";
+
+  const scramble = () => {
+    let iteration = 0;
+    const interval = setInterval(() => {
+      setDisplayText(
+        text
+          .split("")
+          .map((char, index) => {
+            if (index < iteration) return text[index];
+            return chars[Math.floor(Math.random() * chars.length)];
+          })
+          .join("")
+      );
+
+      if (iteration >= text.length) clearInterval(interval);
+      iteration += 1 / 3;
+    }, 30);
+  };
+
+  return (
+    <span onMouseEnter={scramble} className="inline-block">
+      {displayText}
+    </span>
+  );
+};
+
+const TiltCard = ({ children, className }: { children: React.ReactNode, className?: string, key?: React.Key }) => {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const mouseXSpring = useSpring(x);
+  const mouseYSpring = useSpring(y);
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["17.5deg", "-17.5deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-17.5deg", "17.5deg"]);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+    x.set(xPct);
+    y.set(yPct);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.div
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ rotateY, rotateX, transformStyle: "preserve-3d" }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+const Counter = ({ value, duration = 2, suffix = "" }: { value: number, duration?: number, suffix?: string }) => {
+  const count = useMotionValue(0);
+  const rounded = useTransform(count, (latest) => Math.round(latest));
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
+
+  useEffect(() => {
+    if (isInView) {
+      animate(count, value, { duration, ease: "easeOut" });
+    }
+  }, [isInView, count, value, duration]);
+
+  return (
+    <span ref={ref}>
+      <motion.span>{rounded}</motion.span>
+      {suffix}
+    </span>
+  );
+};
+
+const Reveal = ({ children, delay = 0, width = "auto", className = "" }: { children: React.ReactNode, delay?: number, width?: "auto" | "100%", className?: string, key?: React.Key }) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  return (
+    <div ref={ref} className={className} style={{ position: "relative", width, overflow: "hidden" }}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+        transition={{ duration: 0.8, delay, ease: [0.19, 1, 0.22, 1] }}
+      >
+        {children}
+      </motion.div>
+    </div>
+  );
+};
 
 const ShutterTransition = ({ onComplete }: { onComplete: () => void, key?: string }) => {
   return (
     <motion.div
       initial={{ opacity: 1 }}
       animate={{ opacity: 0 }}
-      transition={{ duration: 1, delay: 2, ease: [0.19, 1, 0.22, 1] }}
+      transition={{ duration: 0.8, delay: 0.8, ease: [0.19, 1, 0.22, 1] }}
       onAnimationComplete={onComplete}
       className="fixed inset-0 z-[95] bg-brand-bg flex flex-col items-center justify-center pointer-events-none"
     >
@@ -49,13 +329,13 @@ const ShutterTransition = ({ onComplete }: { onComplete: () => void, key?: strin
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: "100%" }}
-          transition={{ delay: 0.5, duration: 0.8 }}
+          transition={{ delay: 0.4, duration: 0.7 }}
           className="h-[1px] bg-black/10 mt-4 max-w-[200px]"
         />
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
+          transition={{ delay: 0.7 }}
           className="mt-4 text-[10px] uppercase tracking-[0.8em] font-black text-black/30"
         >
           Visual Artist
@@ -71,10 +351,10 @@ const Preloader = ({ onComplete }: { onComplete: () => void, key?: string }) => 
 
   useEffect(() => {
     if (index < words.length) {
-      const timeout = setTimeout(() => setIndex(index + 1), 700);
+      const timeout = setTimeout(() => setIndex(index + 1), 850);
       return () => clearTimeout(timeout);
     } else {
-      setTimeout(onComplete, 1000);
+      setTimeout(onComplete, 1200);
     }
   }, [index, onComplete]);
 
@@ -82,7 +362,7 @@ const Preloader = ({ onComplete }: { onComplete: () => void, key?: string }) => 
     <motion.div 
       initial={{ opacity: 1 }}
       exit={{ opacity: 0, filter: "blur(40px)", scale: 1.1 }}
-      transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
+      transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
       className="fixed inset-0 z-[100] bg-black flex items-center justify-center overflow-hidden"
     >
       {/* Film Grain Overlay */}
@@ -91,23 +371,23 @@ const Preloader = ({ onComplete }: { onComplete: () => void, key?: string }) => 
       {/* Cinematic Background Glows */}
       <motion.div 
         animate={{ 
-          scale: [1, 1.2, 1],
-          opacity: [0.1, 0.2, 0.1],
-          x: [0, 20, 0],
-          y: [0, -20, 0]
+          scale: [1, 1.3, 1],
+          opacity: [0.1, 0.25, 0.1],
+          x: [0, 30, 0],
+          y: [0, -30, 0]
         }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-1/4 left-1/4 w-[50vw] h-[50vw] bg-brand-orange/20 rounded-full blur-[120px]"
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-1/4 left-1/4 w-[60vw] h-[60vw] bg-brand-orange/15 rounded-full blur-[150px]"
       />
       <motion.div 
         animate={{ 
-          scale: [1.2, 1, 1.2],
-          opacity: [0.05, 0.15, 0.05],
-          x: [0, -30, 0],
-          y: [0, 30, 0]
+          scale: [1.3, 1, 1.3],
+          opacity: [0.05, 0.2, 0.05],
+          x: [0, -40, 0],
+          y: [0, 40, 0]
         }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute bottom-1/4 right-1/4 w-[40vw] h-[40vw] bg-white/10 rounded-full blur-[100px]"
+        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-1/4 right-1/4 w-[50vw] h-[50vw] bg-white/10 rounded-full blur-[120px]"
       />
 
       <div className="relative flex items-center justify-center">
@@ -162,7 +442,47 @@ const Preloader = ({ onComplete }: { onComplete: () => void, key?: string }) => 
   );
 };
 
+const MorphingBlob = ({ className = "", color = "bg-brand-orange/20" }: { className?: string, color?: string }) => {
+  return (
+    <motion.div
+      animate={{
+        borderRadius: [
+          "40% 60% 70% 30% / 40% 50% 60% 50%",
+          "60% 40% 30% 70% / 50% 60% 40% 60%",
+          "40% 60% 70% 30% / 40% 50% 60% 50%",
+        ],
+        scale: [1, 1.1, 1],
+        rotate: [0, 90, 0],
+      }}
+      transition={{
+        duration: 15,
+        repeat: Infinity,
+        ease: "easeInOut",
+      }}
+      className={`absolute blur-[80px] ${color} ${className}`}
+    />
+  );
+};
+
 const BackgroundEffects = () => {
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const { clientX, clientY } = e;
+      const moveX = (clientX - window.innerWidth / 2) / 25;
+      const moveY = (clientY - window.innerHeight / 2) / 25;
+      mouseX.set(moveX);
+      mouseY.set(moveY);
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [mouseX, mouseY]);
+
+  const springX = useSpring(mouseX, { stiffness: 50, damping: 20 });
+  const springY = useSpring(mouseY, { stiffness: 50, damping: 20 });
+
   return (
     <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
       {/* Subtle Grid Pattern */}
@@ -173,27 +493,20 @@ const BackgroundEffects = () => {
         }} 
       />
       
-      {/* Soft Light Leaks */}
+      {/* Floating Glass Cards for Depth */}
       <motion.div 
-        animate={{ 
-          scale: [1, 1.2, 1],
-          opacity: [0.1, 0.2, 0.1],
-          x: [0, 50, 0],
-          y: [0, -30, 0]
-        }}
-        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute -top-[20%] -left-[10%] w-[60vw] h-[60vw] bg-brand-orange/10 rounded-full blur-[120px]"
+        style={{ x: springX, y: springY }}
+        className="absolute top-[20%] left-[15%] w-64 h-64 border border-white/40 bg-white/20 backdrop-blur-xl rounded-3xl rotate-12 z-0 shadow-2xl shadow-black/5" 
       />
       <motion.div 
-        animate={{ 
-          scale: [1.2, 1, 1.2],
-          opacity: [0.05, 0.15, 0.05],
-          x: [0, -40, 0],
-          y: [0, 40, 0]
-        }}
-        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute -bottom-[10%] -right-[10%] w-[50vw] h-[50vw] bg-white/20 rounded-full blur-[100px]"
+        style={{ x: useTransform(springX, (v) => -v * 1.5), y: useTransform(springY, (v) => -v * 1.5) }}
+        className="absolute bottom-[20%] right-[10%] w-96 h-96 border border-white/40 bg-white/10 backdrop-blur-2xl rounded-[4rem] -rotate-6 z-0 shadow-2xl shadow-black/5" 
       />
+      
+      {/* Morphing Background Blobs */}
+      <MorphingBlob className="top-[-10%] left-[-10%] w-[60vw] h-[60vw]" />
+      <MorphingBlob className="bottom-[-10%] right-[-10%] w-[50vw] h-[50vw]" color="bg-white/20" />
+      <MorphingBlob className="top-[30%] right-[10%] w-[30vw] h-[30vw]" color="bg-brand-orange/5" />
 
       {/* Persistent Film Grain */}
       <div className="absolute inset-0 opacity-[0.02] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat" />
@@ -221,30 +534,55 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-brand-bg/80 backdrop-blur-md py-4' : 'bg-transparent py-6'}`}>
+    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${isScrolled ? 'bg-white/40 backdrop-blur-xl py-4 shadow-xl shadow-black/5 border-b border-white/20' : 'bg-transparent py-6'}`}>
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-        <a href="#home" className="text-2xl font-black tracking-tighter flex items-center gap-1">
-          <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-            <div className="w-4 h-4 bg-brand-orange rounded-full" />
+        <motion.a 
+          href="#home" 
+          whileHover="hover"
+          className="text-2xl font-black tracking-tighter flex items-center gap-1"
+        >
+          <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center overflow-hidden">
+            <motion.div 
+              variants={{
+                hover: { 
+                  borderRadius: "20%",
+                  rotate: 45,
+                  scale: 1.2
+                }
+              }}
+              className="w-4 h-4 bg-brand-orange rounded-full" 
+            />
           </div>
           <span>Aadarsh Sah</span>
-        </a>
+        </motion.a>
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
-            <a 
-              key={link.name} 
-              href={link.href} 
-              className="text-sm font-medium hover:text-brand-orange transition-colors"
-            >
-              {link.name}
-            </a>
+              <motion.a 
+                key={link.name} 
+                href={link.href} 
+                whileTap={{ scale: 0.85, rotate: -3 }}
+                className="text-sm font-black uppercase tracking-widest hover:text-brand-orange transition-colors"
+              >
+                <ScrambleText text={link.name} />
+              </motion.a>
           ))}
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest bg-black text-white px-4 py-2 rounded-full">
-            <span className="w-2 h-2 bg-brand-orange rounded-full animate-pulse" />
-            Available for hire
-          </div>
+          <Magnetic>
+            <motion.div 
+              whileHover={{ 
+                scale: 1.05, 
+                backgroundColor: "#FF9F1C", 
+                color: "#000",
+                boxShadow: "0 10px 30px -10px rgba(255, 159, 28, 0.5)"
+              }}
+              whileTap={{ scale: 0.8, rotate: 5 }}
+              className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest bg-black text-white px-4 py-2 rounded-full shadow-lg shadow-black/10 cursor-pointer transition-all duration-300"
+            >
+              <span className="w-2 h-2 bg-brand-orange rounded-full animate-pulse" />
+              Available for hire
+            </motion.div>
+          </Magnetic>
         </div>
 
         {/* Mobile Toggle */}
@@ -260,21 +598,47 @@ const Navbar = () => {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="absolute top-full left-0 w-full bg-brand-bg border-b border-black/5 p-6 md:hidden flex flex-col gap-4"
+            initial={{ opacity: 0, x: "100%" }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed inset-0 z-[60] bg-black md:hidden flex flex-col items-center justify-center gap-8"
           >
-            {navLinks.map((link) => (
-              <a 
-                key={link.name} 
-                href={link.href} 
-                className="text-2xl font-bold hover:text-brand-orange transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                {link.name}
-              </a>
-            ))}
+            <button 
+              className="absolute top-6 right-6 p-2 text-white"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <X size={32} />
+            </button>
+
+            <div className="flex flex-col items-center gap-6">
+              {navLinks.map((link, i) => (
+                <motion.a 
+                  key={link.name} 
+                  href={link.href} 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 + 0.2 }}
+                  className="text-4xl font-black uppercase tracking-tighter text-white hover:text-brand-orange transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {link.name}
+                </motion.a>
+              ))}
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="mt-12 flex gap-6"
+            >
+              {[<Youtube />, <Instagram />, <Twitter />].map((icon, i) => (
+                <div key={i} className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center text-white">
+                  {icon}
+                </div>
+              ))}
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -283,6 +647,12 @@ const Navbar = () => {
 };
 
 const Hero = () => {
+  const { scrollY } = useScroll();
+  const y1 = useTransform(scrollY, [0, 500], [0, 200]);
+  const y2 = useTransform(scrollY, [0, 500], [0, -100]);
+  const rotate = useTransform(scrollY, [0, 500], [0, 15]);
+  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -315,39 +685,41 @@ const Hero = () => {
   };
 
   return (
-    <section id="home" className="min-h-screen pt-24 md:pt-32 pb-12 md:pb-20 px-6 overflow-hidden">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center">
+    <section id="home" className="min-h-screen pt-28 md:pt-32 pb-12 md:pb-20 px-6 overflow-hidden relative">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16 items-center relative z-10">
         <motion.div 
+          style={{ y: y2 }}
           variants={containerVariants}
           initial="hidden"
           animate="visible"
+          className="order-2 lg:order-1"
         >
           <motion.p 
             variants={itemVariants}
-            className="text-[10px] md:text-xs uppercase tracking-[0.4em] font-bold text-black/40 mb-6"
+            className="text-[10px] md:text-xs uppercase tracking-[0.4em] font-bold text-black/40 mb-4 md:mb-6"
           >
             "Editing is where the movie is made."
           </motion.p>
           <motion.h1 
             variants={itemVariants}
-            className="text-5xl md:text-7xl lg:text-8xl font-black uppercase mb-8 relative leading-[0.9] tracking-tight"
+            className="text-6xl md:text-7xl lg:text-8xl font-black uppercase mb-6 md:mb-8 relative leading-[0.85] tracking-tight"
           >
-            <div className="relative overflow-hidden">
+            <div className="relative overflow-hidden group">
               <motion.span 
-                initial={{ y: "100%", opacity: 0, letterSpacing: "0.2em" }}
-                animate={{ y: 0, opacity: 1, letterSpacing: "-0.02em" }}
-                transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
-                className="block text-black" 
+                initial={{ y: "100%", opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
+                className="block text-black group-hover:animate-glitch" 
               >
                 AADARSH
               </motion.span>
             </div>
-            <div className="relative overflow-hidden">
+            <div className="relative overflow-hidden group">
               <motion.span 
-                initial={{ y: "100%", opacity: 0, letterSpacing: "0.2em" }}
-                animate={{ y: 0, opacity: 1, letterSpacing: "-0.02em" }}
-                transition={{ duration: 1.2, delay: 0.1, ease: [0.19, 1, 0.22, 1] }}
-                className="block text-brand-orange" 
+                initial={{ y: "100%", opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.05, ease: [0.19, 1, 0.22, 1] }}
+                className="block text-brand-orange group-hover:animate-glitch" 
               >
                 SAH
               </motion.span>
@@ -375,74 +747,139 @@ const Hero = () => {
                 { icon: <Twitter size={18} />, label: 'x' },
                 { icon: <MessageCircle size={18} />, label: 'wa' },
               ].map((item, i) => (
-                <a 
-                  key={i} 
-                  href="#" 
-                  className="w-10 h-10 rounded-full border border-black/10 flex items-center justify-center hover:bg-black hover:text-white transition-all"
-                >
-                  {item.icon}
-                </a>
+                <Magnetic key={i}>
+                  <motion.a 
+                    href="#" 
+                    whileHover={{ 
+                      scale: 1.2, 
+                      backgroundColor: "#FF9F1C", 
+                      color: "#000",
+                      borderRadius: "20%",
+                      rotate: 10,
+                      boxShadow: "0 10px 20px -5px rgba(255, 159, 28, 0.4)"
+                    }}
+                    whileTap={{ 
+                      scale: 0.75, 
+                      rotate: -15,
+                      borderRadius: "50%",
+                    }}
+                    transition={{ type: "spring", stiffness: 600, damping: 12 }}
+                    className="w-10 h-10 rounded-full border border-black/10 flex items-center justify-center transition-all duration-500 bg-white/50 backdrop-blur-sm"
+                  >
+                    {item.icon}
+                  </motion.a>
+                </Magnetic>
               ))}
             </div>
 
-            <div className="grid grid-cols-2 gap-8">
-              <div>
-                <p className="text-4xl font-black tracking-tighter">+250k</p>
-                <p className="text-xs uppercase font-bold text-black/40 tracking-widest mt-1">views on social media</p>
-              </div>
-              <div>
-                <p className="text-4xl font-black tracking-tighter">+800k</p>
-                <p className="text-xs uppercase font-bold text-black/40 tracking-widest mt-1">Hours watched, engaging storytelling</p>
-              </div>
+            <div className="grid grid-cols-2 gap-12">
+              <Reveal delay={0.4}>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.8, delay: 0.4, ease: [0.19, 1, 0.22, 1] }}
+                >
+                  <p className="text-5xl font-black tracking-tighter text-brand-orange">
+                    <Counter value={270} suffix="k+" />
+                  </p>
+                  <p className="text-[10px] uppercase font-bold text-black/40 tracking-[0.2em] mt-2">Views on social media</p>
+                </motion.div>
+              </Reveal>
+              <Reveal delay={0.5}>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.8, delay: 0.5, ease: [0.19, 1, 0.22, 1] }}
+                >
+                  <p className="text-5xl font-black tracking-tighter text-black">
+                    <Counter value={56} suffix="+" />
+                  </p>
+                  <p className="text-[10px] uppercase font-bold text-black/40 tracking-[0.2em] mt-2">Completed Projects</p>
+                </motion.div>
+              </Reveal>
             </div>
           </motion.div>
         </motion.div>
 
         <motion.div 
+          style={{ y: y1, rotate, opacity }}
           variants={imageVariants}
           initial="hidden"
           animate="visible"
-          className="relative"
+          className="relative order-1 lg:order-2 mb-8 lg:mb-0"
         >
           {/* Main Hero Image Card */}
-          <div className="relative z-10 aspect-[4/5] rounded-[40px] overflow-hidden bg-brand-orange shadow-2xl group">
-            <img 
-              src="https://picsum.photos/seed/filmmaker/800/1000" 
-              alt="Aadarsh Sah" 
-              className="w-full h-full object-cover mix-blend-multiply grayscale hover:grayscale-0 transition-all duration-700"
-              referrerPolicy="no-referrer"
-            />
-            
-            {/* Floating UI Elements */}
-            <div className="absolute top-8 left-8">
-              <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30">
-                <Camera size={24} className="text-white" />
+          <TiltCard>
+            <div className="relative z-10 aspect-[4/5] rounded-[40px] overflow-hidden bg-brand-orange shadow-2xl group">
+              <img 
+                src="https://picsum.photos/seed/filmmaker/800/1000" 
+                alt="Aadarsh Sah" 
+                className="w-full h-full object-cover mix-blend-multiply grayscale hover:grayscale-0 transition-all duration-1000 ease-in-out"
+                referrerPolicy="no-referrer"
+              />
+              
+              {/* Floating UI Elements */}
+              <div className="absolute top-8 left-8">
+                <div className="w-12 h-12 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/30 shadow-xl">
+                  <Camera size={24} className="text-white" />
+                </div>
+              </div>
+
+              <div className="absolute bottom-8 right-8">
+                <motion.div 
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                  className="w-24 h-24 bg-black rounded-full flex items-center justify-center relative"
+                >
+                  <ArrowUpRight size={32} className="text-brand-orange" />
+                  <div className="absolute inset-0 border-2 border-dashed border-brand-orange/30 rounded-full scale-110" />
+                </motion.div>
               </div>
             </div>
+          </TiltCard>
 
-            <div className="absolute bottom-8 right-8">
-              <motion.div 
-                animate={{ rotate: 360 }}
-                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                className="w-24 h-24 bg-black rounded-full flex items-center justify-center relative"
-              >
-                <ArrowUpRight size={32} className="text-brand-orange" />
-                <div className="absolute inset-0 border-2 border-dashed border-brand-orange/30 rounded-full scale-110" />
-              </motion.div>
-            </div>
-          </div>
+          {/* Floating Image Bubble */}
+          <Magnetic>
+            <motion.div
+              animate={{
+                y: [0, -20, 0],
+                x: [0, 10, 0],
+              }}
+              transition={{
+                duration: 5,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              className="absolute -top-12 -left-12 w-32 h-32 rounded-full overflow-hidden border-4 border-white/40 backdrop-blur-xl shadow-2xl z-20 hidden md:block cursor-pointer"
+            >
+              <img 
+                src="https://picsum.photos/seed/filmmaker/400/400" 
+                alt="Aadarsh Sah Mini" 
+                className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500"
+                referrerPolicy="no-referrer"
+              />
+            </motion.div>
+          </Magnetic>
 
           {/* Decorative Elements */}
           <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand-orange/10 rounded-full blur-3xl" />
           <div className="absolute -bottom-10 -left-10 w-60 h-60 bg-black/5 rounded-full blur-3xl" />
           
           <div className="absolute top-1/2 -right-4 translate-y-[-50%] z-20 flex flex-col gap-3 md:gap-4 scale-75 md:scale-100">
-            <div className="w-14 h-14 bg-white rounded-2xl shadow-xl flex items-center justify-center border border-black/5">
+            <motion.div 
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              whileTap={{ scale: 0.8, rotate: -10 }}
+              className="w-14 h-14 bg-white rounded-2xl shadow-xl flex items-center justify-center border border-black/5 cursor-pointer"
+            >
               <Video size={24} className="text-black" />
-            </div>
-            <div className="w-14 h-14 bg-brand-orange rounded-2xl shadow-xl flex items-center justify-center">
+            </motion.div>
+            <motion.div 
+              whileHover={{ scale: 1.1, rotate: -5 }}
+              whileTap={{ scale: 0.8, rotate: 10 }}
+              className="w-14 h-14 bg-brand-orange rounded-2xl shadow-xl flex items-center justify-center cursor-pointer"
+            >
               <Film size={24} className="text-white" />
-            </div>
+            </motion.div>
           </div>
         </motion.div>
       </div>
@@ -451,11 +888,22 @@ const Hero = () => {
 };
 
 const About = () => {
+  const { scrollYProgress } = useScroll();
+  const y = useTransform(scrollYProgress, [0, 1], [0, -100]);
+  const rotate = useTransform(scrollYProgress, [0, 1], [0, 20]);
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.1, 1]);
+
   return (
-    <section id="about" className="bg-black text-white py-20 md:py-32 overflow-hidden relative">
+    <section id="about" className="bg-black text-white py-24 md:py-40 overflow-hidden relative">
+      {/* Floating Depth Elements */}
+      <motion.div 
+        style={{ y: useTransform(scrollYProgress, [0, 1], [100, -100]) }}
+        className="absolute top-1/4 -right-20 w-80 h-80 border border-white/5 bg-white/5 backdrop-blur-sm rounded-[4rem] rotate-45 z-0 pointer-events-none" 
+      />
+      
       {/* Scrolling Text Background */}
-      <div className="absolute top-10 left-0 w-full overflow-hidden opacity-10 pointer-events-none">
-        <div className="scrolling-text flex gap-10 text-[6rem] md:text-[10rem] font-black uppercase">
+      <div className="absolute top-10 left-0 w-full overflow-hidden opacity-10 pointer-events-none select-none">
+        <div className="scrolling-text flex gap-10 text-[6rem] md:text-[10rem] font-black uppercase whitespace-nowrap">
           <span>about . about . about . about . about . about .</span>
           <span>about . about . about . about . about . about .</span>
         </div>
@@ -463,12 +911,15 @@ const About = () => {
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="flex flex-col items-center text-center">
-          <div className="relative mb-20">
+          <Reveal className="relative mb-24">
             {/* Radial Burst Effect */}
             <div className="absolute inset-0 radial-burst rounded-full animate-spin-slow opacity-30 scale-150" />
             
             <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl">
-              <img 
+              <motion.img 
+                style={{ y, scale }}
+                whileHover={{ scale: 1.1 }}
+                transition={{ duration: 0.8 }}
                 src="https://picsum.photos/seed/portrait/600/600" 
                 alt="Portrait" 
                 className="w-full h-full object-cover grayscale"
@@ -481,32 +932,42 @@ const About = () => {
             <Plus className="absolute -top-4 -right-4 text-brand-orange" size={32} />
             <Plus className="absolute -bottom-4 -left-4 text-brand-orange" size={32} />
             <Plus className="absolute -bottom-4 -right-4 text-brand-orange" size={32} />
-          </div>
+          </Reveal>
 
-          <div className="max-w-2xl">
-            <h2 className="text-5xl md:text-7xl font-black uppercase mb-8 tracking-tighter">
-              Capturing the <span className="text-brand-orange">Unseen</span>
-            </h2>
-            <p className="text-xl text-white/70 leading-relaxed mb-12">
-              I am Aadarsh Sah, a dedicated video editor and cameraman with a passion for visual storytelling. With years of experience in the industry, I specialize in creating cinematic experiences that resonate with audiences. My work is a blend of technical precision and artistic intuition.
-            </p>
+          <div className="max-w-3xl">
+            <Reveal>
+              <h2 className="text-5xl md:text-8xl font-black uppercase mb-10 tracking-tighter leading-none">
+                Capturing the <span className="text-brand-orange">Unseen</span>
+              </h2>
+            </Reveal>
+            <Reveal delay={0.2}>
+              <p className="text-xl md:text-2xl text-white/70 leading-relaxed mb-16 font-medium">
+                I am Aadarsh Sah, a dedicated video editor and cameraman with a passion for visual storytelling. With years of experience in the industry, I specialize in creating cinematic experiences that resonate with audiences.
+              </p>
+            </Reveal>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-              <div className="p-6 border border-white/10 rounded-3xl hover:bg-white/5 transition-colors">
-                <p className="text-brand-orange font-bold mb-2">01</p>
-                <h3 className="text-xl font-bold mb-2">Vision</h3>
-                <p className="text-sm text-white/50">Translating abstract ideas into compelling visual narratives.</p>
-              </div>
-              <div className="p-6 border border-white/10 rounded-3xl hover:bg-white/5 transition-colors">
-                <p className="text-brand-orange font-bold mb-20">02</p>
-                <h3 className="text-xl font-bold mb-2">Execution</h3>
-                <p className="text-sm text-white/50">High-end equipment and advanced editing techniques.</p>
-              </div>
-              <div className="p-6 border border-white/10 rounded-3xl hover:bg-white/5 transition-colors">
-                <p className="text-brand-orange font-bold mb-2">03</p>
-                <h3 className="text-xl font-bold mb-2">Impact</h3>
-                <p className="text-sm text-white/50">Creating content that drives engagement and results.</p>
-              </div>
+              {[
+                { num: '01', title: 'Vision', desc: 'Translating abstract ideas into compelling visual narratives.' },
+                { num: '02', title: 'Execution', desc: 'High-end equipment and advanced editing techniques.' },
+                { num: '03', title: 'Impact', desc: 'Creating content that drives engagement and results.' }
+              ].map((item, i) => (
+                <Reveal key={i} delay={0.3 + i * 0.1}>
+                  <motion.div 
+                    whileHover={{ 
+                      y: -10,
+                      borderColor: "rgba(255, 159, 28, 0.5)",
+                      backgroundColor: "rgba(255, 255, 255, 0.1)"
+                    }}
+                    whileTap={{ scale: 0.95, rotate: -1 }}
+                    className="p-8 border border-white/10 bg-white/5 backdrop-blur-md rounded-2xl transition-all group h-full shadow-xl shadow-black/10 cursor-pointer"
+                  >
+                    <p className="text-brand-orange font-bold mb-4 tracking-widest">{item.num}</p>
+                    <h3 className="text-2xl font-bold mb-3 uppercase tracking-tighter">{item.title}</h3>
+                    <p className="text-sm text-white/50 leading-relaxed">{item.desc}</p>
+                  </motion.div>
+                </Reveal>
+              ))}
             </div>
           </div>
         </div>
@@ -516,6 +977,10 @@ const About = () => {
 };
 
 const Portfolio = () => {
+  const [filter, setFilter] = useState('all');
+  const { scrollYProgress } = useScroll();
+  const titleY = useTransform(scrollYProgress, [0, 1], [0, -150]);
+  
   const projects = [
     { title: 'Travel Film', category: 'Cinematography', size: 'large', img: 'https://picsum.photos/seed/travel/800/600' },
     { title: 'Wedding Edit', category: 'Editing', size: 'small', img: 'https://picsum.photos/seed/wedding/400/600' },
@@ -525,55 +990,131 @@ const Portfolio = () => {
     { title: 'Action Reel', category: 'Editing', size: 'small', img: 'https://picsum.photos/seed/action/400/600' },
   ];
 
+  const filteredProjects = filter === 'all' ? projects : projects.filter(p => p.category === filter);
+
   return (
-    <section id="portfolio" className="py-20 md:py-32 px-6 bg-brand-bg relative">
-      <div className="max-w-7xl mx-auto">
-        <div className="relative mb-12 md:mb-20">
-          <h2 className="text-[15vw] md:text-[12vw] font-black uppercase tracking-tighter opacity-10 absolute -top-12 md:-top-20 left-0 pointer-events-none">
+    <section id="portfolio" className="py-24 md:py-40 px-6 bg-brand-bg relative overflow-hidden">
+      {/* Depth Layer */}
+      <motion.div 
+        style={{ y: useTransform(scrollYProgress, [0, 1], [-100, 100]) }}
+        className="absolute top-1/2 -left-32 w-[30rem] h-[30rem] border border-black/5 bg-black/5 backdrop-blur-[2px] rounded-full z-0 pointer-events-none" 
+      />
+
+      <div className="max-w-7xl mx-auto relative z-10">
+        <div className="relative mb-16 md:mb-24">
+          <motion.h2 
+            style={{ y: titleY }}
+            className="text-[15vw] md:text-[12vw] font-black uppercase tracking-tighter opacity-10 absolute -top-12 md:-top-20 left-0 pointer-events-none"
+          >
             portfolio
-          </h2>
-          <div className="flex justify-between items-end relative z-10">
+          </motion.h2>
+          <div className="flex flex-col md:flex-row md:items-end justify-between relative z-10 gap-8">
             <div>
-              <p className="text-brand-orange font-bold uppercase tracking-widest mb-2">Selected Works</p>
-              <h3 className="text-5xl font-black uppercase tracking-tighter">Cinematic Projects</h3>
+              <p className="text-brand-orange font-bold uppercase tracking-[0.3em] text-xs mb-3">Selected Works</p>
+              <h3 className="text-5xl md:text-6xl font-black uppercase tracking-tighter">Cinematic Projects</h3>
             </div>
-            <a href="#" className="hidden md:flex items-center gap-2 font-bold hover:text-brand-orange transition-colors">
-              View All Projects <ArrowUpRight size={20} />
-            </a>
+            
+            {/* Toggle Switch / Filter */}
+            <Reveal delay={0.2}>
+              <div className="flex p-1 bg-white/40 backdrop-blur-xl rounded-full border border-white/20 shadow-xl shadow-black/5 relative">
+                {['all', 'Cinematography', 'Editing'].map((cat) => (
+                  <Magnetic key={cat}>
+                    <button
+                      onClick={() => setFilter(cat)}
+                      className={`relative px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors duration-300 z-10 ${
+                        filter === cat 
+                          ? 'text-white' 
+                          : 'text-black/40 hover:text-black'
+                      }`}
+                    >
+                      {filter === cat && (
+                        <motion.div
+                          layoutId="active-pill"
+                          className="absolute inset-0 bg-black rounded-full shadow-lg shadow-black/20"
+                          transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                        />
+                      )}
+                      <span className="relative z-10">
+                        <ScrambleText text={cat} />
+                      </span>
+                    </button>
+                  </Magnetic>
+                ))}
+              </div>
+            </Reveal>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project, i) => (
-            <motion.div 
-              key={i}
-              whileHover={{ scale: 1.02 }}
-              className={`relative rounded-[32px] overflow-hidden group cursor-pointer ${
-                project.size === 'large' ? 'md:col-span-2 md:row-span-2' : 
-                project.size === 'medium' ? 'md:col-span-2' : ''
-              }`}
-            >
-              <img 
-                src={project.img} 
-                alt={project.title} 
-                className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
-                <p className="text-brand-orange font-bold text-sm uppercase tracking-widest mb-1">{project.category}</p>
-                <h4 className="text-3xl font-black text-white uppercase tracking-tighter">{project.title}</h4>
-                <div className="mt-4 w-12 h-12 bg-white rounded-full flex items-center justify-center">
-                  <Play size={20} className="text-black fill-current" />
-                </div>
-              </div>
-              
-              {/* Special Orange Card from Reference */}
-              {i === 5 && (
-                <div className="absolute inset-0 bg-brand-orange mix-blend-multiply opacity-30 group-hover:opacity-0 transition-opacity" />
-              )}
-            </motion.div>
-          ))}
-        </div>
+        <motion.div 
+          layout
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
+          <AnimatePresence mode="popLayout">
+            {filteredProjects.map((project, i) => (
+              <TiltCard 
+                key={project.title}
+                className={`relative rounded-2xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-700 ${
+                  project.size === 'large' ? 'md:col-span-2 md:row-span-2' : 
+                  project.size === 'medium' ? 'md:col-span-2' : ''
+                }`}
+              >
+                <motion.div 
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  whileHover={{ 
+                    y: -10,
+                    borderRadius: "40px 16px 40px 16px"
+                  }}
+                  whileTap={{ scale: 0.98, rotateX: 5 }}
+                  transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
+                  className="h-full w-full"
+                >
+                  <div className="aspect-video md:aspect-auto h-full overflow-hidden">
+                    <motion.img 
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
+                      src={project.img} 
+                      alt={project.title} 
+                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 ease-in-out"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                  
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 flex flex-col justify-end p-10">
+                    <div className="overflow-hidden">
+                      <motion.div
+                        initial={{ y: 20, opacity: 0 }}
+                        whileHover={{ y: 0, opacity: 1 }}
+                        className="group-hover:translate-y-0 translate-y-4 transition-transform duration-700 ease-[0.19,1,0.22,1]"
+                        style={{ transform: "translateZ(50px)" }}
+                      >
+                        <p className="text-brand-orange font-bold text-xs uppercase tracking-[0.3em] mb-2">{project.category}</p>
+                        <h4 className="text-3xl font-black text-white uppercase tracking-tighter mb-4">
+                          <ScrambleText text={project.title} />
+                        </h4>
+                        <Magnetic>
+                          <motion.div 
+                            whileHover={{ scale: 1.1, backgroundColor: "#FF9F1C" }}
+                            whileTap={{ scale: 0.8, rotate: 180 }}
+                            className="w-12 h-12 bg-white rounded-full flex items-center justify-center cursor-pointer transition-colors duration-300"
+                          >
+                            <Play size={20} className="text-black fill-current" />
+                          </motion.div>
+                        </Magnetic>
+                      </motion.div>
+                    </div>
+                  </div>
+                  
+                  {i === 5 && (
+                    <div className="absolute inset-0 bg-brand-orange mix-blend-multiply opacity-20 group-hover:opacity-0 transition-opacity" />
+                  )}
+                </motion.div>
+              </TiltCard>
+            ))}
+          </AnimatePresence>
+        </motion.div>
       </div>
     </section>
   );
@@ -590,33 +1131,40 @@ const Gallery = () => {
   ];
 
   return (
-    <section id="gallery" className="py-20 md:py-32 px-6 bg-black text-white">
+    <section id="gallery" className="py-24 md:py-40 px-6 bg-black text-white">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12 md:mb-20">
-          <h2 className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-4">Behind the <span className="text-brand-orange">Lens</span></h2>
-          <p className="text-white/50 max-w-xl mx-auto">A collection of moments from the field, showcasing the gear, the process, and the passion.</p>
-        </div>
+        <Reveal className="text-center mb-16 md:mb-24">
+          <h2 className="text-5xl md:text-8xl font-black uppercase tracking-tighter mb-6">Behind the <span className="text-brand-orange">Lens</span></h2>
+          <p className="text-white/50 max-w-xl mx-auto text-lg">A collection of moments from the field, showcasing the gear, the process, and the passion.</p>
+        </Reveal>
 
-        <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+        <div className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8">
           {images.map((img, i) => (
-            <motion.div 
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="relative rounded-3xl overflow-hidden group"
-            >
-              <img 
-                src={img} 
-                alt={`Gallery ${i}`} 
-                className="w-full h-auto grayscale hover:grayscale-0 transition-all duration-700 hover:scale-110"
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <Plus size={40} className="text-brand-orange" />
-              </div>
-            </motion.div>
+            <Reveal key={i} delay={i * 0.1}>
+              <TiltCard>
+                <motion.div 
+                  whileHover={{ 
+                    y: -5, 
+                    boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+                    borderRadius: "40px 12px 40px 12px"
+                  }}
+                  whileTap={{ scale: 0.95, rotate: -2 }}
+                  className="relative rounded-2xl overflow-hidden group shadow-lg transition-all duration-500 cursor-pointer"
+                >
+                  <motion.img 
+                    whileHover={{ scale: 1.03 }}
+                    transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
+                    src={img} 
+                    alt={`Gallery ${i}`} 
+                    className="w-full h-auto grayscale hover:grayscale-0 transition-all duration-700"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                    <Plus size={40} className="text-brand-orange" />
+                  </div>
+                </motion.div>
+              </TiltCard>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -634,24 +1182,46 @@ const Services = () => {
   ];
 
   return (
-    <section id="services" className="py-20 md:py-32 px-6 bg-brand-bg">
+    <section id="services" className="py-24 md:py-40 px-6 bg-brand-bg">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
-          <div className="lg:col-span-1">
-            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-6">Services</h2>
-            <p className="text-black/60 mb-8">Elevating your vision through premium production and post-production services.</p>
-            <div className="w-20 h-1 bg-brand-orange" />
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 md:gap-16">
+          <Reveal className="lg:col-span-1">
+            <h2 className="text-5xl md:text-6xl font-black uppercase tracking-tighter mb-8">Services</h2>
+            <p className="text-black/60 mb-10 text-lg leading-relaxed">Elevating your vision through premium production and post-production services.</p>
+            <div className="w-20 h-1.5 bg-brand-orange rounded-full" />
+          </Reveal>
           
-          <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
             {services.map((service, i) => (
-              <div key={i} className="p-8 bg-white rounded-[40px] shadow-sm hover:shadow-xl transition-all group border border-black/5">
-                <div className="w-14 h-14 bg-brand-bg rounded-2xl flex items-center justify-center mb-6 group-hover:bg-brand-orange group-hover:text-white transition-colors">
-                  {service.icon}
-                </div>
-                <h3 className="text-2xl font-black uppercase tracking-tighter mb-3">{service.title}</h3>
-                <p className="text-black/50 text-sm leading-relaxed">{service.desc}</p>
-              </div>
+              <Reveal key={i} delay={i * 0.1}>
+                <motion.div 
+                  whileHover={{ 
+                    y: -10, 
+                    boxShadow: "0 30px 60px -12px rgba(0, 0, 0, 0.25), 0 18px 36px -18px rgba(0, 0, 0, 0.3)",
+                    borderRadius: "32px",
+                    borderColor: "rgba(255, 159, 28, 0.4)"
+                  }}
+                  className="p-10 bg-white/40 backdrop-blur-xl rounded-2xl shadow-xl shadow-black/5 transition-all duration-500 group border border-white/20 h-full relative overflow-hidden"
+                >
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-orange to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  
+                  <Magnetic>
+                    <motion.div 
+                      whileHover={{ 
+                        borderRadius: "30%",
+                        rotate: 15,
+                        scale: 1.1
+                      }}
+                      whileTap={{ scale: 0.7, rotate: -15 }}
+                      className="w-16 h-16 bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-brand-orange group-hover:text-white transition-all duration-300 cursor-pointer"
+                    >
+                      {service.icon}
+                    </motion.div>
+                  </Magnetic>
+                  <h3 className="text-2xl font-black uppercase tracking-tighter mb-4 group-hover:text-brand-orange transition-colors duration-300">{service.title}</h3>
+                  <p className="text-black/50 text-sm leading-relaxed group-hover:text-black/70 transition-colors duration-300">{service.desc}</p>
+                </motion.div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -669,30 +1239,46 @@ const Experience = () => {
   ];
 
   return (
-    <section className="py-20 md:py-32 px-6 bg-brand-bg border-t border-black/5">
+    <section className="py-24 md:py-40 px-6 bg-brand-bg border-t border-black/5">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-[15vw] md:text-[10vw] font-black uppercase tracking-tighter opacity-5 mb-12 md:mb-20 leading-none">exhibitions</h2>
+        <Reveal>
+          <h2 className="text-[15vw] md:text-[10vw] font-black uppercase tracking-tighter opacity-5 mb-16 md:mb-24 leading-none">exhibitions</h2>
+        </Reveal>
         
         <div className="flex flex-col">
           {items.map((item, i) => (
-            <div key={i} className="group flex flex-col md:flex-row md:items-center justify-between py-10 border-b border-black/10 hover:bg-black/5 px-4 transition-colors">
-              <div className="flex items-center gap-8 mb-4 md:mb-0">
-                <span className="text-xs font-bold text-black/30">0{i + 1}</span>
-                <h3 className="text-3xl md:text-4xl font-black uppercase tracking-tighter group-hover:text-brand-orange transition-colors">
-                  {item.title}
-                </h3>
-              </div>
-              
-              <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-12">
-                <div className="text-right md:text-left">
-                  <p className="text-sm font-bold uppercase tracking-widest">{item.location}</p>
-                  <p className="text-xs text-black/40 uppercase tracking-widest">{item.date}</p>
+            <Reveal key={i} delay={i * 0.1}>
+              <div className="group flex flex-col md:flex-row md:items-center justify-between py-12 border-b border-black/10 hover:bg-black/5 px-6 transition-all duration-700 rounded-xl">
+                <div className="flex items-center gap-10 mb-6 md:mb-0">
+                  <span className="text-xs font-bold text-black/30 tracking-widest">0{i + 1}</span>
+                  <h3 className="text-3xl md:text-5xl font-black uppercase tracking-tighter group-hover:text-brand-orange transition-colors duration-700">
+                    {item.title}
+                  </h3>
                 </div>
-                <button className="px-8 py-3 rounded-full border border-black text-xs font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all">
-                  View Project
-                </button>
+                
+                <div className="flex flex-col md:flex-row md:items-center gap-8 md:gap-16">
+                  <div className="text-right md:text-left">
+                    <p className="text-sm font-bold uppercase tracking-[0.2em] mb-1">{item.location}</p>
+                    <p className="text-xs text-black/40 uppercase tracking-[0.2em]">{item.date}</p>
+                  </div>
+                  <motion.button 
+                    whileHover={{ 
+                      scale: 1.05, 
+                      backgroundColor: "#FF9F1C", 
+                      color: "#000", 
+                      boxShadow: "0 10px 30px -10px rgba(255, 159, 28, 0.5)",
+                      borderRadius: "12px",
+                      borderColor: "transparent"
+                    }}
+                    whileTap={{ scale: 0.85, y: 4 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 12 }}
+                    className="px-10 py-4 rounded-full border border-black text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500"
+                  >
+                    View Project
+                  </motion.button>
+                </div>
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -702,61 +1288,66 @@ const Experience = () => {
 
 const Footer = () => {
   return (
-    <footer id="contact" className="bg-brand-bg pt-20 md:pt-32 pb-10 px-6 overflow-hidden">
+    <footer id="contact" className="bg-brand-bg pt-24 md:pt-40 pb-12 px-6 overflow-hidden">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20 md:mb-32">
-          <div className="lg:col-span-2">
-            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-8">Let's create<br />something <span className="text-brand-orange">epic</span>.</h2>
-            <a href="mailto:hello@aadarshsah.com" className="text-2xl font-bold underline hover:text-brand-orange transition-colors">
-              hello@aadarshsah.com
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-24 md:mb-40">
+          <Reveal className="lg:col-span-2">
+            <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-10 leading-none">Let's create<br />something <span className="text-brand-orange">epic</span>.</h2>
+            <a href="mailto:hello@aadarshsah.com" className="text-2xl md:text-3xl font-bold underline hover:text-brand-orange transition-all duration-300 group inline-block">
+              <span className="group-hover:animate-glitch inline-block">hello@aadarshsah.com</span>
             </a>
-          </div>
+          </Reveal>
           
-          <div>
-            <h4 className="text-xs font-black uppercase tracking-widest text-black/30 mb-6">Navigation</h4>
-            <ul className="flex flex-col gap-4 font-bold">
-              <li><a href="#home" className="hover:text-brand-orange transition-colors">Home</a></li>
-              <li><a href="#about" className="hover:text-brand-orange transition-colors">About</a></li>
-              <li><a href="#portfolio" className="hover:text-brand-orange transition-colors">Portfolio</a></li>
-              <li><a href="#gallery" className="hover:text-brand-orange transition-colors">Gallery</a></li>
+          <Reveal delay={0.2}>
+            <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-black/30 mb-8">Navigation</h4>
+            <ul className="flex flex-col gap-5 font-bold text-lg">
+              {['Home', 'About', 'Portfolio', 'Gallery'].map((item) => (
+                <li key={item}>
+                  <motion.a 
+                    href={`#${item.toLowerCase()}`} 
+                    whileTap={{ scale: 0.95, x: 5 }}
+                    className="hover:text-brand-orange transition-all duration-300 inline-block"
+                  >
+                    <ScrambleText text={item} />
+                  </motion.a>
+                </li>
+              ))}
             </ul>
-          </div>
+          </Reveal>
 
-          <div>
-            <h4 className="text-xs font-black uppercase tracking-widest text-black/30 mb-6">Social</h4>
-            <ul className="flex flex-col gap-4 font-bold">
-              <li>
-                <a href="#" className="flex items-center gap-2 hover:text-brand-orange transition-colors">
-                  <Instagram size={18} /> Instagram
-                </a>
-              </li>
-              <li>
-                <a href="#" className="flex items-center gap-2 hover:text-brand-orange transition-colors">
-                  <Youtube size={18} /> YouTube
-                </a>
-              </li>
-              <li>
-                <a href="#" className="flex items-center gap-2 hover:text-brand-orange transition-colors">
-                  <Twitter size={18} /> Twitter
-                </a>
-              </li>
-              <li>
-                <a href="#" className="flex items-center gap-2 hover:text-brand-orange transition-colors">
-                  <MessageCircle size={18} /> WhatsApp
-                </a>
-              </li>
+          <Reveal delay={0.3}>
+            <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-black/30 mb-8">Social</h4>
+            <ul className="flex flex-col gap-5 font-bold text-lg">
+              {[
+                { name: 'Instagram', icon: <Instagram size={20} /> },
+                { name: 'YouTube', icon: <Youtube size={20} /> },
+                { name: 'Twitter', icon: <Twitter size={20} /> },
+                { name: 'WhatsApp', icon: <MessageCircle size={20} /> },
+              ].map((item) => (
+                <li key={item.name}>
+                  <Magnetic>
+                    <motion.a 
+                      href="#" 
+                      whileTap={{ scale: 0.9, rotate: 10 }}
+                      className="flex items-center gap-3 hover:text-brand-orange transition-all duration-300 cursor-pointer"
+                    >
+                      {item.icon} <ScrambleText text={item.name} />
+                    </motion.a>
+                  </Magnetic>
+                </li>
+              ))}
             </ul>
-          </div>
+          </Reveal>
         </div>
 
-        <div className="relative">
-          <h1 className="text-[20vw] font-black uppercase tracking-tighter leading-none text-black select-none pointer-events-none">
+        <Reveal delay={0.5} className="relative">
+          <h1 className="text-[20vw] font-black uppercase tracking-tighter leading-none text-black select-none pointer-events-none opacity-100">
             Aadarsh Sah
           </h1>
-          <div className="absolute bottom-0 right-0 p-4 text-xs font-bold uppercase tracking-widest text-black/40">
+          <div className="absolute bottom-0 right-0 p-4 text-[10px] font-bold uppercase tracking-[0.3em] text-black/40">
             © 2026 Visual Motion. All rights reserved.
           </div>
-        </div>
+        </Reveal>
       </div>
     </footer>
   );
@@ -798,6 +1389,8 @@ export default function App() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
+          <ClickSpark />
+          <CursorFollower />
           <BackgroundEffects />
           <Navbar />
           <Hero />
@@ -810,10 +1403,15 @@ export default function App() {
           
           <div className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-50">
             <motion.button 
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
+              whileHover={{ 
+                scale: 1.15, 
+                backgroundColor: "#FF9F1C",
+                color: "#000",
+                boxShadow: "0 20px 40px -10px rgba(255, 159, 28, 0.5)"
+              }}
+              whileTap={{ scale: 0.7, y: 15 }}
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="w-14 h-14 bg-black text-white rounded-full flex items-center justify-center shadow-2xl border border-white/10"
+              className="w-14 h-14 bg-black/80 backdrop-blur-xl text-white rounded-full flex items-center justify-center shadow-2xl border border-white/20 transition-colors duration-300"
             >
               <ArrowUpRight size={24} className="-rotate-45" />
             </motion.button>

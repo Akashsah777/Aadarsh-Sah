@@ -21,21 +21,22 @@ import {
   Play,
   ChevronRight,
   Palette,
-  Smartphone
+  Smartphone,
+  MessageCircle
 } from 'lucide-react';
 
 // --- Components ---
 
 const Preloader = ({ onComplete }: { onComplete: () => void }) => {
-  const words = ["STORYTELLING", "CINEMATOGRAPHY", "EDITING", "MOTION", "POETRY"];
+  const words = ["STORYTELLING", "CINEMATOGRAPHY", "EDITING", "VISION", "MOTION"];
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
     if (index < words.length) {
-      const timeout = setTimeout(() => setIndex(index + 1), 250);
+      const timeout = setTimeout(() => setIndex(index + 1), 800);
       return () => clearTimeout(timeout);
     } else {
-      setTimeout(onComplete, 500);
+      setTimeout(onComplete, 1200);
     }
   }, [index, onComplete]);
 
@@ -49,10 +50,10 @@ const Preloader = ({ onComplete }: { onComplete: () => void }) => {
         <AnimatePresence mode="wait">
           <motion.h2 
             key={index}
-            initial={{ opacity: 0, y: 20, scale: 0.8 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 1.2 }}
-            transition={{ duration: 0.2 }}
+            initial={{ opacity: 0, y: 40, scale: 0.5, filter: "blur(10px)" }}
+            animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: -40, scale: 1.5, filter: "blur(10px)" }}
+            transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
             className="text-6xl md:text-9xl font-black text-white tracking-tighter"
           >
             {words[index] || "VISUAL"}
@@ -61,8 +62,8 @@ const Preloader = ({ onComplete }: { onComplete: () => void }) => {
         
         {/* Flash effect */}
         <motion.div 
-          animate={{ opacity: [0, 0.2, 0] }}
-          transition={{ duration: 0.1, repeat: Infinity }}
+          animate={{ opacity: [0, 0.1, 0] }}
+          transition={{ duration: 0.8, repeat: Infinity }}
           className="absolute inset-0 bg-brand-orange blur-3xl"
         />
       </div>
@@ -160,9 +161,17 @@ const Hero = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
         >
+          <motion.p 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.2, duration: 1 }}
+            className="text-[10px] md:text-xs uppercase tracking-[0.4em] font-bold text-black/40 mb-6"
+          >
+            "Editing is where the movie is made."
+          </motion.p>
           <h1 className="text-huge font-black uppercase mb-8 animate-slam">
             <span className="glitch-text inline-block" data-text="visual">visual</span><br />
-            <span className="glitch-text inline-block" data-text="poetry">poetry</span>
+            <span className="glitch-text inline-block" data-text="motion">motion</span>
           </h1>
           
           <div className="max-w-md">
@@ -175,8 +184,8 @@ const Hero = () => {
               {[
                 { icon: <Youtube size={18} />, label: 'yt' },
                 { icon: <Instagram size={18} />, label: 'ig' },
-                { icon: <Facebook size={18} />, label: 'fb' },
                 { icon: <Twitter size={18} />, label: 'x' },
+                { icon: <MessageCircle size={18} />, label: 'wa' },
               ].map((item, i) => (
                 <a 
                   key={i} 
@@ -528,10 +537,26 @@ const Footer = () => {
           <div>
             <h4 className="text-xs font-black uppercase tracking-widest text-black/30 mb-6">Social</h4>
             <ul className="flex flex-col gap-4 font-bold">
-              <li><a href="#" className="hover:text-brand-orange transition-colors">Instagram</a></li>
-              <li><a href="#" className="hover:text-brand-orange transition-colors">YouTube</a></li>
-              <li><a href="#" className="hover:text-brand-orange transition-colors">Twitter</a></li>
-              <li><a href="#" className="hover:text-brand-orange transition-colors">LinkedIn</a></li>
+              <li>
+                <a href="#" className="flex items-center gap-2 hover:text-brand-orange transition-colors">
+                  <Instagram size={18} /> Instagram
+                </a>
+              </li>
+              <li>
+                <a href="#" className="flex items-center gap-2 hover:text-brand-orange transition-colors">
+                  <Youtube size={18} /> YouTube
+                </a>
+              </li>
+              <li>
+                <a href="#" className="flex items-center gap-2 hover:text-brand-orange transition-colors">
+                  <Twitter size={18} /> Twitter
+                </a>
+              </li>
+              <li>
+                <a href="#" className="flex items-center gap-2 hover:text-brand-orange transition-colors">
+                  <MessageCircle size={18} /> WhatsApp
+                </a>
+              </li>
             </ul>
           </div>
         </div>
@@ -541,7 +566,7 @@ const Footer = () => {
             Aadarsh Sah
           </h1>
           <div className="absolute bottom-0 right-0 p-4 text-xs font-bold uppercase tracking-widest text-black/40">
-            © 2026 Visual Poetry. All rights reserved.
+            © 2026 Visual Motion. All rights reserved.
           </div>
         </div>
       </div>
@@ -562,9 +587,9 @@ export default function App() {
 
       {!isLoading && (
         <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
+          initial={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
+          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+          transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
         >
           <Navbar />
           <Hero />

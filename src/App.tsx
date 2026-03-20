@@ -207,8 +207,8 @@ const Hero = () => {
   };
 
   return (
-    <section id="home" className="min-h-screen pt-32 pb-20 px-6 overflow-hidden">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+    <section id="home" className="min-h-screen pt-24 md:pt-32 pb-12 md:pb-20 px-6 overflow-hidden">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center">
         <motion.div 
           variants={containerVariants}
           initial="hidden"
@@ -302,7 +302,7 @@ const Hero = () => {
           <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand-orange/10 rounded-full blur-3xl" />
           <div className="absolute -bottom-10 -left-10 w-60 h-60 bg-black/5 rounded-full blur-3xl" />
           
-          <div className="absolute top-1/2 -right-4 translate-y-[-50%] z-20 flex flex-col gap-4">
+          <div className="absolute top-1/2 -right-4 translate-y-[-50%] z-20 flex flex-col gap-3 md:gap-4 scale-75 md:scale-100">
             <div className="w-14 h-14 bg-white rounded-2xl shadow-xl flex items-center justify-center border border-black/5">
               <Video size={24} className="text-black" />
             </div>
@@ -318,10 +318,10 @@ const Hero = () => {
 
 const About = () => {
   return (
-    <section id="about" className="bg-black text-white py-32 overflow-hidden relative">
+    <section id="about" className="bg-black text-white py-20 md:py-32 overflow-hidden relative">
       {/* Scrolling Text Background */}
       <div className="absolute top-10 left-0 w-full overflow-hidden opacity-10 pointer-events-none">
-        <div className="scrolling-text flex gap-10 text-[10rem] font-black uppercase">
+        <div className="scrolling-text flex gap-10 text-[6rem] md:text-[10rem] font-black uppercase">
           <span>about . about . about . about . about . about .</span>
           <span>about . about . about . about . about . about .</span>
         </div>
@@ -392,10 +392,10 @@ const Portfolio = () => {
   ];
 
   return (
-    <section id="portfolio" className="py-32 px-6 bg-brand-bg relative">
+    <section id="portfolio" className="py-20 md:py-32 px-6 bg-brand-bg relative">
       <div className="max-w-7xl mx-auto">
-        <div className="relative mb-20">
-          <h2 className="text-[12vw] font-black uppercase tracking-tighter opacity-10 absolute -top-20 left-0 pointer-events-none">
+        <div className="relative mb-12 md:mb-20">
+          <h2 className="text-[15vw] md:text-[12vw] font-black uppercase tracking-tighter opacity-10 absolute -top-12 md:-top-20 left-0 pointer-events-none">
             portfolio
           </h2>
           <div className="flex justify-between items-end relative z-10">
@@ -456,10 +456,10 @@ const Gallery = () => {
   ];
 
   return (
-    <section id="gallery" className="py-32 px-6 bg-black text-white">
+    <section id="gallery" className="py-20 md:py-32 px-6 bg-black text-white">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-20">
-          <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-4">Behind the <span className="text-brand-orange">Lens</span></h2>
+        <div className="text-center mb-12 md:mb-20">
+          <h2 className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-4">Behind the <span className="text-brand-orange">Lens</span></h2>
           <p className="text-white/50 max-w-xl mx-auto">A collection of moments from the field, showcasing the gear, the process, and the passion.</p>
         </div>
 
@@ -500,11 +500,11 @@ const Services = () => {
   ];
 
   return (
-    <section id="services" className="py-32 px-6 bg-brand-bg">
+    <section id="services" className="py-20 md:py-32 px-6 bg-brand-bg">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
           <div className="lg:col-span-1">
-            <h2 className="text-5xl font-black uppercase tracking-tighter mb-6">Services</h2>
+            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-6">Services</h2>
             <p className="text-black/60 mb-8">Elevating your vision through premium production and post-production services.</p>
             <div className="w-20 h-1 bg-brand-orange" />
           </div>
@@ -535,9 +535,9 @@ const Experience = () => {
   ];
 
   return (
-    <section className="py-32 px-6 bg-brand-bg border-t border-black/5">
+    <section className="py-20 md:py-32 px-6 bg-brand-bg border-t border-black/5">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-[10vw] font-black uppercase tracking-tighter opacity-5 mb-20 leading-none">exhibitions</h2>
+        <h2 className="text-[15vw] md:text-[10vw] font-black uppercase tracking-tighter opacity-5 mb-12 md:mb-20 leading-none">exhibitions</h2>
         
         <div className="flex flex-col">
           {items.map((item, i) => (
@@ -568,11 +568,11 @@ const Experience = () => {
 
 const Footer = () => {
   return (
-    <footer id="contact" className="bg-brand-bg pt-32 pb-10 px-6 overflow-hidden">
+    <footer id="contact" className="bg-brand-bg pt-20 md:pt-32 pb-10 px-6 overflow-hidden">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-32">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20 md:mb-32">
           <div className="lg:col-span-2">
-            <h2 className="text-5xl font-black uppercase tracking-tighter mb-8">Let's create<br />something <span className="text-brand-orange">epic</span>.</h2>
+            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-8">Let's create<br />something <span className="text-brand-orange">epic</span>.</h2>
             <a href="mailto:hello@aadarshsah.com" className="text-2xl font-bold underline hover:text-brand-orange transition-colors">
               hello@aadarshsah.com
             </a>
@@ -673,7 +673,7 @@ export default function App() {
           <Experience />
           <Footer />
           
-          <div className="fixed bottom-10 right-10 z-50">
+          <div className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-50">
             <motion.button 
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}

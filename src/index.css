@@ -15,9 +15,9 @@
 }
 
 .text-huge {
-  font-size: clamp(3rem, 10vw, 8rem);
-  line-height: 0.85;
-  letter-spacing: -0.04em;
+  font-size: clamp(3.5rem, 15vw, 10rem);
+  line-height: 0.8;
+  letter-spacing: -0.05em;
 }
 
 .scrolling-text {

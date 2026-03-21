@@ -12,12 +12,13 @@ import {
   Scissors, 
   Palette, 
   Smartphone, 
+  PenTool,
   ArrowUpRight, 
   Plus, 
   Play, 
   Instagram, 
   Youtube, 
-  Twitter, 
+  Facebook,
   MessageCircle, 
   Menu, 
   X 
@@ -414,7 +415,9 @@ const Navbar = () => {
             </a>
           ))}
           <Magnetic>
-            <motion.div 
+            <motion.a 
+              href="https://wa.me/9779709026078?text=I%20want%20to%20hire%20you"
+              target="_blank"
               whileHover={{ 
                 scale: 1.05, 
                 backgroundColor: "#FF9F1C", 
@@ -426,7 +429,7 @@ const Navbar = () => {
             >
               <span className="w-2 h-2 bg-brand-orange rounded-full animate-pulse" />
               Available for hire
-            </motion.div>
+            </motion.a>
           </Magnetic>
         </div>
 
@@ -577,26 +580,27 @@ const Hero = () => {
               {[
                 { icon: <Youtube size={18} />, label: 'yt' },
                 { icon: <Instagram size={18} />, label: 'ig' },
-                { icon: <Twitter size={18} />, label: 'x' },
+                { icon: <Facebook size={18} />, label: 'fb' },
                 { icon: <MessageCircle size={18} />, label: 'wa' },
               ].map((item, i) => (
                 <Magnetic key={i}>
-                  <motion.a 
-                    href="#" 
-                    whileHover={{ 
-                      scale: 1.1, 
-                      backgroundColor: "#FF9F1C", 
-                      color: "#000",
-                      borderRadius: "20%",
-                      rotate: 10,
-                      boxShadow: "0 10px 20px -5px rgba(255, 159, 28, 0.4)"
-                    }}
-                    whileTap={{ scale: 0.97 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                    className="w-11 h-11 rounded-full border border-black/10 flex items-center justify-center transition-all duration-500 bg-white/50 backdrop-blur-sm"
-                  >
-                    {item.icon}
-                  </motion.a>
+                    <motion.a 
+                      href={item.label === 'wa' ? "https://wa.me/9779709026078?text=I%20want%20to%20hire%20you" : item.label === 'yt' ? "https://youtube.com/@adarsh-motion3?si=mb9vm4x8ZcHzlW39" : item.label === 'fb' ? "https://www.facebook.com/share/17S9LvBhnz/?mibextid=wwXIfr" : "#"}
+                      target={item.label === 'wa' || item.label === 'yt' || item.label === 'fb' ? "_blank" : undefined}
+                      whileHover={{ 
+                        scale: 1.1, 
+                        backgroundColor: "#FF9F1C", 
+                        color: "#000",
+                        borderRadius: "20%",
+                        rotate: 10,
+                        boxShadow: "0 10px 20px -5px rgba(255, 159, 28, 0.4)"
+                      }}
+                      whileTap={{ scale: 0.97 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                      className="w-11 h-11 rounded-full border border-black/10 flex items-center justify-center transition-all duration-500 bg-white/50 backdrop-blur-sm"
+                    >
+                      {item.icon}
+                    </motion.a>
                 </Magnetic>
               ))}
             </div>
@@ -609,7 +613,7 @@ const Hero = () => {
                   transition={{ duration: 0.8, delay: 0.4, ease: [0.19, 1, 0.22, 1] }}
                 >
                   <p className="text-5xl font-black tracking-tighter text-brand-orange">
-                    <Counter value={270} suffix="k+" />
+                    <Counter value={100} suffix="k+" />
                   </p>
                   <p className="text-[10px] uppercase font-bold text-black/40 tracking-[0.2em] mt-2">Views on social media</p>
                 </motion.div>
@@ -621,7 +625,7 @@ const Hero = () => {
                   transition={{ duration: 0.8, delay: 0.5, ease: [0.19, 1, 0.22, 1] }}
                 >
                   <p className="text-5xl font-black tracking-tighter text-black">
-                    <Counter value={56} suffix="+" />
+                    <Counter value={45} suffix="+" />
                   </p>
                   <p className="text-[10px] uppercase font-bold text-black/40 tracking-[0.2em] mt-2">Completed Projects</p>
                 </motion.div>
@@ -672,18 +676,6 @@ const Hero = () => {
               </motion.div>
             </div>
           </motion.div>
-
-          {/* Floating Image Bubble */}
-          <div
-            className="absolute -top-12 -left-12 w-32 h-32 rounded-full overflow-hidden border-4 border-white/40 backdrop-blur-xl shadow-2xl z-20 hidden md:block cursor-pointer"
-          >
-            <img 
-              src="https://picsum.photos/seed/filmmaker/400/400" 
-              alt="Aadarsh Sah Mini" 
-              className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500"
-              referrerPolicy="no-referrer"
-            />
-          </div>
 
           {/* Decorative Elements */}
           <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand-orange/10 rounded-full blur-3xl" />
@@ -760,7 +752,7 @@ const About = () => {
             </Reveal>
             <Reveal delay={0.2}>
               <p className="text-xl md:text-2xl text-white/70 leading-relaxed mb-16 font-medium">
-                I am Aadarsh Sah, a dedicated video editor and cameraman with a passion for visual storytelling. With years of experience in the industry, I specialize in creating cinematic experiences that resonate with audiences.
+                I am Aadarsh Sah, a dedicated video editor, cameraman, and graphic designer with a passion for visual storytelling. With years of experience in the industry, I specialize in creating cinematic experiences and stunning designs that resonate with audiences.
               </p>
             </Reveal>
             
@@ -799,8 +791,8 @@ const Portfolio = () => {
       { title: 'Travel Film', size: 'large', img: 'https://iili.io/qk4Jd5x.md.png', link: 'https://vt.tiktok.com/ZSusHsDwT/' },
       { title: 'Urban Flow', size: 'small', img: 'https://iili.io/qkPkOKX.md.png' },
       { title: 'Desert Vibes', size: 'small', img: 'https://iili.io/qk6kAml.md.png', link: 'https://www.facebook.com/share/p/183v5bhf9v/?mibextid=wwXIfr' },
-      { title: 'Ocean Waves', size: 'large', img: 'https://iili.io/qk6bL74.md.jpg' },
-      { title: 'City Lights', size: 'small', img: 'https://iili.io/qkPJKsS.md.png' },
+      { title: 'Ocean Waves', size: 'large', img: 'https://iili.io/qk6bL74.md.jpg', link: 'https://vt.tiktok.com/ZSusHgeBv/' },
+      { title: 'City Lights', size: 'small', img: 'https://iili.io/qkPJKsS.md.png', link: 'https://www.instagram.com/p/DUhspi5E2S5/?igsh=MWR3MnRtcHFqM3hy' },
       { title: 'Skyline View', size: 'small', img: 'https://iili.io/qkiu2dG.md.png', link: 'https://vt.tiktok.com/ZSusHpk97/' },
     ],
     'ai posts': [
@@ -1028,11 +1020,10 @@ const Gallery = () => {
 
 const Services = () => {
   const services = [
-    { icon: <Video />, title: 'Cinematography', desc: 'Professional shooting for events, films, and commercials.' },
+    { icon: <Camera />, title: 'Photo Shoots', desc: 'Professional photography for portraits, events, and brands.' },
+    { icon: <PenTool />, title: 'Script Writing', desc: 'Creative and compelling scripts for videos and stories.' },
     { icon: <Scissors />, title: 'Video Editing', desc: 'Cinematic edits, reels, and YouTube content.' },
-    { icon: <Palette />, title: 'Color Grading', desc: 'Professional color correction and stylistic grading.' },
-    { icon: <Camera />, title: 'Photography', desc: 'Creative portraits, lifestyle, and brand shoots.' },
-    { icon: <Smartphone />, title: 'Social Content', desc: 'Optimized content for TikTok, Reels, and Shorts.' },
+    { icon: <Palette />, title: 'Graphic Designing', desc: 'Stunning visual designs for brands and social media.' },
   ];
 
   return (
@@ -1174,12 +1165,12 @@ const Footer = () => {
               {[
                 { name: 'Instagram', icon: <Instagram size={20} /> },
                 { name: 'YouTube', icon: <Youtube size={20} /> },
-                { name: 'Twitter', icon: <Twitter size={20} /> },
+                { name: 'Facebook', icon: <Facebook size={20} /> },
                 { name: 'WhatsApp', icon: <MessageCircle size={20} /> },
               ].map((item) => (
                 <li key={item.name}>
                   <Magnetic>
-                    <a href="#" className="flex items-center gap-3 hover:text-brand-orange transition-all duration-300 cursor-pointer">
+                    <a href={item.name === 'YouTube' ? "https://youtube.com/@adarsh-motion3?si=mb9vm4x8ZcHzlW39" : item.name === 'Facebook' ? "https://www.facebook.com/share/17S9LvBhnz/?mibextid=wwXIfr" : "#"} target={item.name === 'YouTube' || item.name === 'Facebook' ? "_blank" : undefined} className="flex items-center gap-3 hover:text-brand-orange transition-all duration-300 cursor-pointer">
                       {item.icon} <ScrambleText text={item.name} />
                     </a>
                   </Magnetic>

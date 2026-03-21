@@ -139,30 +139,9 @@ const Magnetic = ({ children, className }: { children: React.ReactNode, classNam
 };
 
 const ScrambleText = ({ text }: { text: string }) => {
-  const [displayText, setDisplayText] = useState(text);
-  const chars = "!<>-_\\/[]{}—=+*^?#________";
-
-  const scramble = () => {
-    let iteration = 0;
-    const interval = setInterval(() => {
-      setDisplayText(
-        text
-          .split("")
-          .map((char, index) => {
-            if (index < iteration) return text[index];
-            return chars[Math.floor(Math.random() * chars.length)];
-          })
-          .join("")
-      );
-
-      if (iteration >= text.length) clearInterval(interval);
-      iteration += 1 / 3;
-    }, 30);
-  };
-
   return (
-    <span onMouseEnter={scramble} className="inline-block">
-      {displayText}
+    <span className="inline-block">
+      {text}
     </span>
   );
 };
@@ -249,15 +228,15 @@ const ShutterTransition = ({ onComplete }: { onComplete: () => void, key?: strin
     <motion.div
       initial={{ opacity: 1 }}
       animate={{ opacity: 0 }}
-      transition={{ duration: 1, delay: 2, ease: [0.19, 1, 0.22, 1] }}
+      transition={{ duration: 0.5, delay: 0.6, ease: [0.19, 1, 0.22, 1] }}
       onAnimationComplete={onComplete}
       className="fixed inset-0 z-[95] bg-brand-bg flex flex-col items-center justify-center pointer-events-none"
     >
       <motion.div
         key="aadarsh-sah"
-        initial={{ opacity: 0, y: 30, filter: "blur(20px)", scale: 0.9 }}
-        animate={{ opacity: 1, y: 0, filter: "blur(0px)", scale: 1 }}
-        transition={{ duration: 1, ease: [0.19, 1, 0.22, 1] }}
+        initial={{ opacity: 0, y: 30, scale: 0.9 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
         className="flex flex-col items-center"
       >
         <h2 className="text-4xl md:text-7xl font-black uppercase tracking-tighter text-black text-center">
@@ -288,10 +267,10 @@ const Preloader = ({ onComplete }: { onComplete: () => void, key?: string }) => 
 
   useEffect(() => {
     if (index < words.length - 1) {
-      const timeout = setTimeout(() => setIndex(index + 1), 1200);
+      const timeout = setTimeout(() => setIndex(index + 1), 400);
       return () => clearTimeout(timeout);
     } else {
-      const timeout = setTimeout(onComplete, 1200);
+      const timeout = setTimeout(onComplete, 400);
       return () => clearTimeout(timeout);
     }
   }, [index, onComplete, words.length]);
@@ -368,11 +347,11 @@ const BackgroundEffects = () => {
       {/* Floating Glass Cards for Depth */}
       <motion.div 
         style={{ x: springX, y: springY }}
-        className="absolute top-[20%] left-[15%] w-64 h-64 border border-white/40 bg-white/20 backdrop-blur-xl rounded-3xl rotate-12 z-0 shadow-2xl shadow-black/5 hidden md:block" 
+        className="absolute top-[20%] left-[15%] w-64 h-64 border border-white/40 bg-white/20 rounded-3xl rotate-12 z-0 shadow-2xl shadow-black/5 hidden md:block" 
       />
       <motion.div 
         style={{ x: useTransform(springX, (v) => -v * 1.5), y: useTransform(springY, (v) => -v * 1.5) }}
-        className="absolute bottom-[20%] right-[10%] w-96 h-96 border border-white/40 bg-white/10 backdrop-blur-2xl rounded-[4rem] -rotate-6 z-0 shadow-2xl shadow-black/5 hidden md:block" 
+        className="absolute bottom-[20%] right-[10%] w-96 h-96 border border-white/40 bg-white/10 rounded-[4rem] -rotate-6 z-0 shadow-2xl shadow-black/5 hidden md:block" 
       />
       
       {/* Persistent Film Grain */}
@@ -521,11 +500,10 @@ const Hero = () => {
   };
 
   const itemVariants = {
-    hidden: { y: 50, opacity: 0, filter: "blur(10px)" },
+    hidden: { y: 50, opacity: 0 },
     visible: { 
       y: 0, 
       opacity: 1, 
-      filter: "blur(0px)",
       transition: { duration: 0.8, ease: [0.19, 1, 0.22, 1] }
     }
   };
@@ -564,7 +542,7 @@ const Hero = () => {
                 initial={{ y: "100%", opacity: 0, letterSpacing: "0.1em" }}
                 animate={{ y: 0, opacity: 1, letterSpacing: "-0.02em" }}
                 transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
-                className="block text-black group-hover:animate-glitch" 
+                className="block text-black" 
               >
                 AADARSH
               </motion.span>
@@ -574,7 +552,7 @@ const Hero = () => {
                 initial={{ y: "100%", opacity: 0, letterSpacing: "0.1em" }}
                 animate={{ y: 0, opacity: 1, letterSpacing: "-0.02em" }}
                 transition={{ duration: 0.8, delay: 0.1, ease: [0.19, 1, 0.22, 1] }}
-                className="block text-brand-orange group-hover:animate-glitch" 
+                className="block text-brand-orange" 
               >
                 SAH
               </motion.span>
@@ -672,6 +650,8 @@ const Hero = () => {
               alt="Aadarsh Sah" 
               className="w-full h-full object-cover transition-all duration-1000 ease-in-out group-hover:scale-105 brightness-95 group-hover:brightness-100 sepia-[.05] group-hover:sepia-0"
               referrerPolicy="no-referrer"
+              fetchPriority="high"
+              decoding="async"
             />
             
             {/* Floating UI Elements */}
@@ -816,11 +796,12 @@ const Portfolio = () => {
   
   const projects = {
     'social media posts': [
-      { title: 'Travel Film', size: 'large', img: 'https://picsum.photos/seed/travel/800/600' },
-      { title: 'Nature Doc', size: 'medium', img: 'https://picsum.photos/seed/nature/600/400' },
-      { title: 'Street Life', size: 'small', img: 'https://picsum.photos/seed/street/400/600' },
-      { title: 'Urban Flow', size: 'small', img: 'https://picsum.photos/seed/urban/400/600' },
-      { title: 'Mountain Peak', size: 'medium', img: 'https://picsum.photos/seed/mountain/600/400' },
+      { title: 'Travel Film', size: 'large', img: 'https://iili.io/qk4Jd5x.md.png', link: 'https://vt.tiktok.com/ZSusHsDwT/' },
+      { title: 'Urban Flow', size: 'small', img: 'https://iili.io/qkPkOKX.md.png' },
+      { title: 'Desert Vibes', size: 'small', img: 'https://iili.io/qk6kAml.md.png', link: 'https://www.facebook.com/share/p/183v5bhf9v/?mibextid=wwXIfr' },
+      { title: 'Ocean Waves', size: 'large', img: 'https://iili.io/qk6bL74.md.jpg' },
+      { title: 'City Lights', size: 'small', img: 'https://iili.io/qkPJKsS.md.png' },
+      { title: 'Skyline View', size: 'small', img: 'https://iili.io/qkiu2dG.md.png', link: 'https://vt.tiktok.com/ZSusHpk97/' },
     ],
     'ai posts': [
       { title: 'Wedding Edit', size: 'small', img: 'https://picsum.photos/seed/wedding/400/600' },
@@ -828,6 +809,12 @@ const Portfolio = () => {
       { title: 'Action Reel', size: 'small', img: 'https://picsum.photos/seed/action/400/600' },
       { title: 'Tech Future', size: 'large', img: 'https://picsum.photos/seed/tech/800/600' },
       { title: 'Abstract Art', size: 'small', img: 'https://picsum.photos/seed/abstract/400/600' },
+      { title: 'Cyberpunk', size: 'medium', img: 'https://picsum.photos/seed/cyberpunk/600/400' },
+      { title: 'Neon Dreams', size: 'small', img: 'https://picsum.photos/seed/neon/400/600' },
+      { title: 'Space Travel', size: 'large', img: 'https://picsum.photos/seed/space/800/600' },
+      { title: 'Robot Mind', size: 'small', img: 'https://picsum.photos/seed/robot/400/600' },
+      { title: 'Virtual World', size: 'medium', img: 'https://picsum.photos/seed/virtual/600/400' },
+      { title: 'Digital Avatar', size: 'small', img: 'https://picsum.photos/seed/avatar/400/600' },
     ],
     'commercial work': [
       { title: 'Music Video', size: 'small', img: 'https://picsum.photos/seed/music/400/600' },
@@ -835,6 +822,12 @@ const Portfolio = () => {
       { title: 'Product Ad', size: 'small', img: 'https://picsum.photos/seed/product/400/600' },
       { title: 'Corporate Event', size: 'large', img: 'https://picsum.photos/seed/corporate/800/600' },
       { title: 'Food Promo', size: 'small', img: 'https://picsum.photos/seed/food/400/600' },
+      { title: 'Car Commercial', size: 'medium', img: 'https://picsum.photos/seed/car/600/400' },
+      { title: 'Real Estate', size: 'small', img: 'https://picsum.photos/seed/realestate/400/600' },
+      { title: 'App Promo', size: 'large', img: 'https://picsum.photos/seed/app/800/600' },
+      { title: 'Fitness Brand', size: 'small', img: 'https://picsum.photos/seed/fitness/400/600' },
+      { title: 'Tech Startup', size: 'medium', img: 'https://picsum.photos/seed/startup/600/400' },
+      { title: 'Travel Agency', size: 'large', img: 'https://picsum.photos/seed/travel/800/600' },
     ],
     'thumbnails': [
       { title: 'Studio Session', size: 'medium', img: 'https://picsum.photos/seed/studio/600/400' },
@@ -842,6 +835,12 @@ const Portfolio = () => {
       { title: 'Landscape View', size: 'large', img: 'https://picsum.photos/seed/landscape/800/600' },
       { title: 'Night City', size: 'small', img: 'https://picsum.photos/seed/night/400/600' },
       { title: 'Morning Light', size: 'medium', img: 'https://picsum.photos/seed/morning/600/400' },
+      { title: 'Vlog Cover', size: 'small', img: 'https://picsum.photos/seed/vlog/400/600' },
+      { title: 'Podcast Art', size: 'medium', img: 'https://picsum.photos/seed/podcast/600/400' },
+      { title: 'Review Video', size: 'small', img: 'https://picsum.photos/seed/review/400/600' },
+      { title: 'Tutorial Thumb', size: 'large', img: 'https://picsum.photos/seed/tutorial/800/600' },
+      { title: 'Gaming Stream', size: 'small', img: 'https://picsum.photos/seed/gaming/400/600' },
+      { title: 'Reaction Video', size: 'medium', img: 'https://picsum.photos/seed/reaction/600/400' },
     ]
   };
 
@@ -902,39 +901,38 @@ const Portfolio = () => {
 
         <motion.div 
           layout
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="columns-1 md:columns-2 lg:columns-3 gap-8"
         >
           <AnimatePresence mode="popLayout">
             {activeProjects.map((project, i) => (
               <TiltCard 
                 key={project.title}
-                className={`relative rounded-2xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-700 ${
-                  project.size === 'large' ? 'md:col-span-2 md:row-span-2' : 
-                  project.size === 'medium' ? 'md:col-span-2' : ''
-                }`}
+                className="relative rounded-2xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-700 break-inside-avoid mb-8 w-full inline-block"
               >
                 <motion.div 
                   layout
-                  initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
-                  animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                  exit={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
+                  onClick={() => project.link && window.open(project.link, '_blank')}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
                   whileHover={{ 
                     y: -10,
                     borderRadius: "40px 16px 40px 16px"
                   }}
                   whileTap={{ scale: 0.97, borderRadius: "40px 16px 40px 16px" }}
                   transition={{ duration: 0.5, type: "spring", bounce: 0.4 }}
-                  className="h-full w-full"
+                  className="w-full"
                 >
-                  <div className="aspect-video md:aspect-auto h-full overflow-hidden">
+                  <div className="overflow-hidden">
                     <motion.img 
                       whileHover={{ scale: 1.05 }}
                       transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
                       src={project.img} 
                       alt={project.title} 
-                      className="w-full h-full object-cover grayscale md:group-hover:grayscale-0 transition-all duration-1000 ease-in-out"
+                      className="w-full h-auto object-cover transition-all duration-1000 ease-in-out grayscale-[0.3] contrast-[1.1] brightness-[0.85] group-hover:grayscale-0 group-hover:contrast-100 group-hover:brightness-100"
                       referrerPolicy="no-referrer"
                       loading="lazy"
+                      decoding="async"
                     />
                   </div>
                   
@@ -1013,6 +1011,7 @@ const Gallery = () => {
                     className="w-full h-auto grayscale md:hover:grayscale-0 transition-all duration-700"
                     referrerPolicy="no-referrer"
                     loading="lazy"
+                    decoding="async"
                   />
                   <div className="absolute inset-0 bg-black/60 opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
                     <Plus size={40} className="text-brand-orange" />
@@ -1152,7 +1151,7 @@ const Footer = () => {
           <Reveal className="lg:col-span-2">
             <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-10 leading-none">Let's create<br />something <span className="text-brand-orange">epic</span>.</h2>
             <a href="mailto:hello@aadarshsah.com" className="text-xl md:text-3xl font-bold underline hover:text-brand-orange transition-all duration-300 group inline-block break-all">
-              <span className="group-hover:animate-glitch inline-block">hello@aadarshsah.com</span>
+              <span className="inline-block">hello@aadarshsah.com</span>
             </a>
           </Reveal>
           

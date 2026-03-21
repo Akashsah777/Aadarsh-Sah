@@ -585,8 +585,8 @@ const Hero = () => {
               ].map((item, i) => (
                 <Magnetic key={i}>
                     <motion.a 
-                      href={item.label === 'wa' ? "https://wa.me/9779709026078?text=I%20want%20to%20hire%20you" : item.label === 'yt' ? "https://youtube.com/@adarsh-motion3?si=mb9vm4x8ZcHzlW39" : item.label === 'fb' ? "https://www.facebook.com/share/17S9LvBhnz/?mibextid=wwXIfr" : "#"}
-                      target={item.label === 'wa' || item.label === 'yt' || item.label === 'fb' ? "_blank" : undefined}
+                      href={item.label === 'wa' ? "https://wa.me/9779709026078?text=I%20want%20to%20hire%20you" : item.label === 'yt' ? "https://youtube.com/@adarsh-motion3?si=mb9vm4x8ZcHzlW39" : item.label === 'fb' ? "https://www.facebook.com/share/17S9LvBhnz/?mibextid=wwXIfr" : item.label === 'ig' ? "https://www.instagram.com/aadarsh_motion?igsh=MTV0b285YmI1YTRnaA%3D%3D&utm_source=qr" : "#"}
+                      target={item.label === 'wa' || item.label === 'yt' || item.label === 'fb' || item.label === 'ig' ? "_blank" : undefined}
                       whileHover={{ 
                         scale: 1.1, 
                         backgroundColor: "#FF9F1C", 
@@ -1170,7 +1170,7 @@ const Footer = () => {
               ].map((item) => (
                 <li key={item.name}>
                   <Magnetic>
-                    <a href={item.name === 'YouTube' ? "https://youtube.com/@adarsh-motion3?si=mb9vm4x8ZcHzlW39" : item.name === 'Facebook' ? "https://www.facebook.com/share/17S9LvBhnz/?mibextid=wwXIfr" : "#"} target={item.name === 'YouTube' || item.name === 'Facebook' ? "_blank" : undefined} className="flex items-center gap-3 hover:text-brand-orange transition-all duration-300 cursor-pointer">
+                    <a href={item.name === 'YouTube' ? "https://youtube.com/@adarsh-motion3?si=mb9vm4x8ZcHzlW39" : item.name === 'Facebook' ? "https://www.facebook.com/share/17S9LvBhnz/?mibextid=wwXIfr" : item.name === 'Instagram' ? "https://www.instagram.com/aadarsh_motion?igsh=MTV0b285YmI1YTRnaA%3D%3D&utm_source=qr" : "#"} target={item.name === 'YouTube' || item.name === 'Facebook' || item.name === 'Instagram' ? "_blank" : undefined} className="flex items-center gap-3 hover:text-brand-orange transition-all duration-300 cursor-pointer">
                       {item.icon} <ScrambleText text={item.name} />
                     </a>
                   </Magnetic>

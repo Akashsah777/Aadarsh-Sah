@@ -23,6 +23,18 @@ import {
   X 
 } from 'lucide-react';
 
+// --- Hooks ---
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+  return isMobile;
+};
+
 // --- Components ---
 
 const CursorFollower = () => {
@@ -217,14 +229,14 @@ const Counter = ({ value, duration = 2, suffix = "" }: { value: number, duration
 
 const Reveal = ({ children, delay = 0, width = "auto", className = "" }: { children: React.ReactNode, delay?: number, width?: "auto" | "100%", className?: string, key?: React.Key }) => {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
 
   return (
     <div ref={ref} className={className} style={{ position: "relative", width, overflow: "hidden" }}>
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-        transition={{ duration: 0.8, delay, ease: [0.19, 1, 0.22, 1] }}
+        initial={{ opacity: 0, y: 15 }}
+        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
+        transition={{ duration: 0.6, delay, ease: [0.19, 1, 0.22, 1] }}
       >
         {children}
       </motion.div>
@@ -356,11 +368,11 @@ const BackgroundEffects = () => {
       {/* Floating Glass Cards for Depth */}
       <motion.div 
         style={{ x: springX, y: springY }}
-        className="absolute top-[20%] left-[15%] w-64 h-64 border border-white/40 bg-white/20 backdrop-blur-xl rounded-3xl rotate-12 z-0 shadow-2xl shadow-black/5" 
+        className="absolute top-[20%] left-[15%] w-64 h-64 border border-white/40 bg-white/20 backdrop-blur-xl rounded-3xl rotate-12 z-0 shadow-2xl shadow-black/5 hidden md:block" 
       />
       <motion.div 
         style={{ x: useTransform(springX, (v) => -v * 1.5), y: useTransform(springY, (v) => -v * 1.5) }}
-        className="absolute bottom-[20%] right-[10%] w-96 h-96 border border-white/40 bg-white/10 backdrop-blur-2xl rounded-[4rem] -rotate-6 z-0 shadow-2xl shadow-black/5" 
+        className="absolute bottom-[20%] right-[10%] w-96 h-96 border border-white/40 bg-white/10 backdrop-blur-2xl rounded-[4rem] -rotate-6 z-0 shadow-2xl shadow-black/5 hidden md:block" 
       />
       
       {/* Persistent Film Grain */}
@@ -430,7 +442,7 @@ const Navbar = () => {
                 color: "#000",
                 boxShadow: "0 10px 30px -10px rgba(255, 159, 28, 0.5)"
               }}
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 0.97 }}
               className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest bg-black text-white px-4 py-2 rounded-full shadow-lg shadow-black/10 cursor-pointer transition-all duration-300"
             >
               <span className="w-2 h-2 bg-brand-orange rounded-full animate-pulse" />
@@ -441,7 +453,7 @@ const Navbar = () => {
 
         {/* Mobile Toggle */}
         <button 
-          className="md:hidden p-2"
+          className="md:hidden w-11 h-11 flex items-center justify-center rounded-full bg-black/5 hover:bg-black/10 transition-colors"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? <X /> : <Menu />}
@@ -491,9 +503,10 @@ const Navbar = () => {
 
 const Hero = () => {
   const { scrollY } = useScroll();
-  const y1 = useTransform(scrollY, [0, 500], [0, 200]);
-  const y2 = useTransform(scrollY, [0, 500], [0, -100]);
-  const rotate = useTransform(scrollY, [0, 500], [0, 15]);
+  const isMobile = useIsMobile();
+  const y1 = useTransform(scrollY, [0, 500], [0, isMobile ? 50 : 200]);
+  const y2 = useTransform(scrollY, [0, 500], [0, isMobile ? -30 : -100]);
+  const rotate = useTransform(scrollY, [0, 500], [0, isMobile ? 5 : 15]);
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
 
   const containerVariants = {
@@ -508,22 +521,22 @@ const Hero = () => {
   };
 
   const itemVariants = {
-    hidden: { y: 100, opacity: 0, filter: "blur(10px)" },
+    hidden: { y: 50, opacity: 0, filter: "blur(10px)" },
     visible: { 
       y: 0, 
       opacity: 1, 
       filter: "blur(0px)",
-      transition: { duration: 1.2, ease: [0.19, 1, 0.22, 1] }
+      transition: { duration: 0.8, ease: [0.19, 1, 0.22, 1] }
     }
   };
 
   const imageVariants = {
-    hidden: { scale: 1.2, opacity: 0, x: 100 },
+    hidden: { scale: 1.1, opacity: 0, x: 50 },
     visible: { 
       scale: 1, 
       opacity: 1, 
       x: 0,
-      transition: { duration: 1.5, ease: [0.19, 1, 0.22, 1] }
+      transition: { duration: 1, ease: [0.19, 1, 0.22, 1] }
     }
   };
 
@@ -548,9 +561,9 @@ const Hero = () => {
           >
             <div className="relative overflow-hidden group">
               <motion.span 
-                initial={{ y: "100%", opacity: 0, letterSpacing: "0.2em" }}
+                initial={{ y: "100%", opacity: 0, letterSpacing: "0.1em" }}
                 animate={{ y: 0, opacity: 1, letterSpacing: "-0.02em" }}
-                transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
+                transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
                 className="block text-black group-hover:animate-glitch" 
               >
                 AADARSH
@@ -558,9 +571,9 @@ const Hero = () => {
             </div>
             <div className="relative overflow-hidden group">
               <motion.span 
-                initial={{ y: "100%", opacity: 0, letterSpacing: "0.2em" }}
+                initial={{ y: "100%", opacity: 0, letterSpacing: "0.1em" }}
                 animate={{ y: 0, opacity: 1, letterSpacing: "-0.02em" }}
-                transition={{ duration: 1.2, delay: 0.1, ease: [0.19, 1, 0.22, 1] }}
+                transition={{ duration: 0.8, delay: 0.1, ease: [0.19, 1, 0.22, 1] }}
                 className="block text-brand-orange group-hover:animate-glitch" 
               >
                 SAH
@@ -571,7 +584,7 @@ const Hero = () => {
             <motion.div 
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
-              transition={{ duration: 1.5, delay: 0.8, ease: [0.19, 1, 0.22, 1] }}
+              transition={{ duration: 1, delay: 0.6, ease: [0.19, 1, 0.22, 1] }}
               className="absolute -left-6 top-0 w-1 h-full bg-black/5 origin-top hidden md:block"
             />
           </motion.h1>
@@ -593,16 +606,16 @@ const Hero = () => {
                   <motion.a 
                     href="#" 
                     whileHover={{ 
-                      scale: 1.2, 
+                      scale: 1.1, 
                       backgroundColor: "#FF9F1C", 
                       color: "#000",
                       borderRadius: "20%",
                       rotate: 10,
                       boxShadow: "0 10px 20px -5px rgba(255, 159, 28, 0.4)"
                     }}
-                    whileTap={{ scale: 0.9 }}
+                    whileTap={{ scale: 0.97 }}
                     transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                    className="w-10 h-10 rounded-full border border-black/10 flex items-center justify-center transition-all duration-500 bg-white/50 backdrop-blur-sm"
+                    className="w-11 h-11 rounded-full border border-black/10 flex items-center justify-center transition-all duration-500 bg-white/50 backdrop-blur-sm"
                   >
                     {item.icon}
                   </motion.a>
@@ -712,15 +725,16 @@ const Hero = () => {
 
 const About = () => {
   const { scrollYProgress } = useScroll();
-  const y = useTransform(scrollYProgress, [0, 1], [0, -100]);
-  const rotate = useTransform(scrollYProgress, [0, 1], [0, 20]);
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.1, 1]);
+  const isMobile = useIsMobile();
+  const y = useTransform(scrollYProgress, [0, 1], [0, isMobile ? -30 : -100]);
+  const rotate = useTransform(scrollYProgress, [0, 1], [0, isMobile ? 5 : 20]);
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1, isMobile ? 1.02 : 1.1, 1]);
 
   return (
     <section id="about" className="bg-black text-white py-24 md:py-40 overflow-hidden relative">
       {/* Floating Depth Elements */}
       <motion.div 
-        style={{ y: useTransform(scrollYProgress, [0, 1], [100, -100]) }}
+        style={{ y: useTransform(scrollYProgress, [0, 1], [isMobile ? 30 : 100, isMobile ? -30 : -100]) }}
         className="absolute top-1/4 -right-20 w-80 h-80 border border-white/5 bg-white/5 backdrop-blur-sm rounded-[4rem] rotate-45 z-0 pointer-events-none" 
       />
       
@@ -741,12 +755,13 @@ const About = () => {
             <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl">
               <motion.img 
                 style={{ y, scale }}
-                whileHover={{ scale: 1.1 }}
+                whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.8 }}
                 src="https://picsum.photos/seed/portrait/600/600" 
                 alt="Portrait" 
                 className="w-full h-full object-cover grayscale"
                 referrerPolicy="no-referrer"
+                loading="lazy"
               />
             </div>
 
@@ -794,7 +809,8 @@ const About = () => {
 const Portfolio = () => {
   const [activeCategory, setActiveCategory] = useState('social media posts');
   const { scrollYProgress } = useScroll();
-  const titleY = useTransform(scrollYProgress, [0, 1], [0, -150]);
+  const isMobile = useIsMobile();
+  const titleY = useTransform(scrollYProgress, [0, 1], [0, isMobile ? -40 : -150]);
   
   const categories = ['social media posts', 'ai posts', 'commercial work', 'thumbnails'];
   
@@ -835,7 +851,7 @@ const Portfolio = () => {
     <section id="portfolio" className="py-24 md:py-40 px-6 bg-brand-bg relative overflow-hidden">
       {/* Depth Layer */}
       <motion.div 
-        style={{ y: useTransform(scrollYProgress, [0, 1], [-100, 100]) }}
+        style={{ y: useTransform(scrollYProgress, [0, 1], [isMobile ? -30 : -100, isMobile ? 30 : 100]) }}
         className="absolute top-1/2 -left-32 w-[30rem] h-[30rem] border border-black/5 bg-black/5 backdrop-blur-[2px] rounded-full z-0 pointer-events-none" 
       />
 
@@ -906,7 +922,7 @@ const Portfolio = () => {
                     y: -10,
                     borderRadius: "40px 16px 40px 16px"
                   }}
-                  whileTap={{ scale: 0.95, borderRadius: "40px 16px 40px 16px" }}
+                  whileTap={{ scale: 0.97, borderRadius: "40px 16px 40px 16px" }}
                   transition={{ duration: 0.5, type: "spring", bounce: 0.4 }}
                   className="h-full w-full"
                 >
@@ -918,6 +934,7 @@ const Portfolio = () => {
                       alt={project.title} 
                       className="w-full h-full object-cover grayscale md:group-hover:grayscale-0 transition-all duration-1000 ease-in-out"
                       referrerPolicy="no-referrer"
+                      loading="lazy"
                     />
                   </div>
                   
@@ -938,8 +955,8 @@ const Portfolio = () => {
                         <Magnetic>
                           <motion.div 
                             whileHover={{ scale: 1.1, backgroundColor: "#FF9F1C" }}
-                            whileTap={{ scale: 0.9, backgroundColor: "#FF9F1C" }}
-                            className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-full flex items-center justify-center cursor-pointer transition-colors duration-300"
+                            whileTap={{ scale: 0.97, backgroundColor: "#FF9F1C" }}
+                            className="w-11 h-11 md:w-12 md:h-12 bg-white rounded-full flex items-center justify-center cursor-pointer transition-colors duration-300"
                           >
                             <Play size={16} className="text-black fill-current md:w-5 md:h-5" />
                           </motion.div>
@@ -985,7 +1002,7 @@ const Gallery = () => {
                     boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
                     borderRadius: "40px 12px 40px 12px"
                   }}
-                  whileTap={{ scale: 0.95, borderRadius: "40px 12px 40px 12px" }}
+                  whileTap={{ scale: 0.97, borderRadius: "40px 12px 40px 12px" }}
                   className="relative rounded-2xl overflow-hidden group shadow-lg transition-all duration-500 cursor-pointer"
                 >
                   <motion.img 
@@ -995,6 +1012,7 @@ const Gallery = () => {
                     alt={`Gallery ${i}`} 
                     className="w-full h-auto grayscale md:hover:grayscale-0 transition-all duration-700"
                     referrerPolicy="no-referrer"
+                    loading="lazy"
                   />
                   <div className="absolute inset-0 bg-black/60 opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
                     <Plus size={40} className="text-brand-orange" />
@@ -1038,7 +1056,7 @@ const Services = () => {
                     borderRadius: "32px",
                     borderColor: "rgba(255, 159, 28, 0.4)"
                   }}
-                  whileTap={{ scale: 0.95, borderRadius: "32px" }}
+                  whileTap={{ scale: 0.97, borderRadius: "32px" }}
                   className="p-10 bg-white/40 backdrop-blur-xl rounded-2xl shadow-xl shadow-black/5 transition-all duration-500 group border border-white/20 h-full relative overflow-hidden"
                 >
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-orange to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -1110,9 +1128,9 @@ const Experience = () => {
                       borderRadius: "12px",
                       borderColor: "transparent"
                     }}
-                    whileTap={{ scale: 0.95 }}
+                    whileTap={{ scale: 0.97 }}
                     transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                    className="px-10 py-4 rounded-full border border-black text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500"
+                    className="px-10 py-4 min-h-[44px] rounded-full border border-black text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500"
                   >
                     View Project
                   </motion.button>
@@ -1245,7 +1263,7 @@ export default function App() {
                 color: "#000",
                 boxShadow: "0 20px 40px -10px rgba(255, 159, 28, 0.5)"
               }}
-              whileTap={{ scale: 0.9 }}
+              whileTap={{ scale: 0.97 }}
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="w-14 h-14 bg-black/80 backdrop-blur-xl text-white rounded-full flex items-center justify-center shadow-2xl border border-white/20 transition-colors duration-300"
             >

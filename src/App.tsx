@@ -166,6 +166,7 @@ const TiltCard = ({ children, className }: { children: React.ReactNode, classNam
   const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-17.5deg", "17.5deg"]);
 
   const handleMouseMove = (e: React.MouseEvent) => {
+    if (window.matchMedia("(hover: none)").matches) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const width = rect.width;
     const height = rect.height;
@@ -451,21 +452,36 @@ const Navbar = () => {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="absolute top-full left-0 w-full bg-white/60 backdrop-blur-2xl border-b border-white/20 p-6 md:hidden flex flex-col gap-4 shadow-2xl"
+            initial={{ clipPath: "circle(0% at 100% 0%)", opacity: 0 }}
+            animate={{ clipPath: "circle(150% at 100% 0%)", opacity: 1 }}
+            exit={{ clipPath: "circle(0% at 100% 0%)", opacity: 0 }}
+            transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
+            className="absolute top-full left-0 w-full h-screen bg-white/90 backdrop-blur-2xl border-b border-white/20 p-8 md:hidden flex flex-col gap-8 shadow-2xl z-50"
           >
-            {navLinks.map((link) => (
-              <a 
+            {navLinks.map((link, i) => (
+              <motion.a 
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 + i * 0.1, duration: 0.5, ease: "easeOut" }}
                 key={link.name} 
                 href={link.href} 
-                className="text-2xl font-bold hover:text-brand-orange transition-colors"
+                className="text-4xl font-black uppercase tracking-tighter hover:text-brand-orange transition-colors"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 {link.name}
-              </a>
+              </motion.a>
             ))}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.5 }}
+              className="mt-8"
+            >
+              <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest bg-black text-white px-6 py-4 rounded-full shadow-lg shadow-black/10 justify-center">
+                <span className="w-2 h-2 bg-brand-orange rounded-full animate-pulse" />
+                Available for hire
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -630,7 +646,13 @@ const Hero = () => {
           className="relative"
         >
           {/* Main Hero Image Card */}
-          <div className="relative z-10 aspect-[4/5] rounded-[40px] overflow-hidden bg-brand-orange shadow-2xl group">
+          <motion.div 
+            animate={{ 
+              borderRadius: ["40px", "100px 40px 100px 40px", "40px 100px 40px 100px", "40px"]
+            }}
+            transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+            className="relative z-10 aspect-[4/5] overflow-hidden bg-brand-orange shadow-2xl group"
+          >
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10" />
             <img 
               src="https://iili.io/qkR5xig.md.jpg" 
@@ -656,7 +678,7 @@ const Hero = () => {
                 <div className="absolute inset-0 border-2 border-dashed border-brand-orange/30 rounded-full scale-110" />
               </motion.div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Floating Image Bubble */}
           <div
@@ -877,14 +899,15 @@ const Portfolio = () => {
               >
                 <motion.div 
                   layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
+                  initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
+                  animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
                   whileHover={{ 
                     y: -10,
                     borderRadius: "40px 16px 40px 16px"
                   }}
-                  transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
+                  whileTap={{ scale: 0.95, borderRadius: "40px 16px 40px 16px" }}
+                  transition={{ duration: 0.5, type: "spring", bounce: 0.4 }}
                   className="h-full w-full"
                 >
                   <div className="aspect-video md:aspect-auto h-full overflow-hidden">
@@ -893,29 +916,32 @@ const Portfolio = () => {
                       transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
                       src={project.img} 
                       alt={project.title} 
-                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 ease-in-out"
+                      className="w-full h-full object-cover grayscale md:group-hover:grayscale-0 transition-all duration-1000 ease-in-out"
                       referrerPolicy="no-referrer"
                     />
                   </div>
                   
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 flex flex-col justify-end p-10">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-700 flex flex-col justify-end p-6 md:p-10">
                     <div className="overflow-hidden">
                       <motion.div
                         initial={{ y: 20, opacity: 0 }}
+                        whileInView={{ y: 0, opacity: 1 }}
+                        viewport={{ once: true }}
                         whileHover={{ y: 0, opacity: 1 }}
-                        className="group-hover:translate-y-0 translate-y-4 transition-transform duration-700 ease-[0.19,1,0.22,1]"
+                        className="translate-y-0 md:translate-y-4 md:group-hover:translate-y-0 transition-transform duration-700 ease-[0.19,1,0.22,1]"
                         style={{ transform: "translateZ(50px)" }}
                       >
                         <p className="text-brand-orange font-bold text-xs uppercase tracking-[0.3em] mb-2">{activeCategory}</p>
-                        <h4 className="text-3xl font-black text-white uppercase tracking-tighter mb-4">
+                        <h4 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter mb-4">
                           <ScrambleText text={project.title} />
                         </h4>
                         <Magnetic>
                           <motion.div 
                             whileHover={{ scale: 1.1, backgroundColor: "#FF9F1C" }}
-                            className="w-12 h-12 bg-white rounded-full flex items-center justify-center cursor-pointer transition-colors duration-300"
+                            whileTap={{ scale: 0.9, backgroundColor: "#FF9F1C" }}
+                            className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-full flex items-center justify-center cursor-pointer transition-colors duration-300"
                           >
-                            <Play size={20} className="text-black fill-current" />
+                            <Play size={16} className="text-black fill-current md:w-5 md:h-5" />
                           </motion.div>
                         </Magnetic>
                       </motion.div>
@@ -959,6 +985,7 @@ const Gallery = () => {
                     boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
                     borderRadius: "40px 12px 40px 12px"
                   }}
+                  whileTap={{ scale: 0.95, borderRadius: "40px 12px 40px 12px" }}
                   className="relative rounded-2xl overflow-hidden group shadow-lg transition-all duration-500 cursor-pointer"
                 >
                   <motion.img 
@@ -966,10 +993,10 @@ const Gallery = () => {
                     transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
                     src={img} 
                     alt={`Gallery ${i}`} 
-                    className="w-full h-auto grayscale hover:grayscale-0 transition-all duration-700"
+                    className="w-full h-auto grayscale md:hover:grayscale-0 transition-all duration-700"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                  <div className="absolute inset-0 bg-black/60 opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
                     <Plus size={40} className="text-brand-orange" />
                   </div>
                 </motion.div>
@@ -1011,6 +1038,7 @@ const Services = () => {
                     borderRadius: "32px",
                     borderColor: "rgba(255, 159, 28, 0.4)"
                   }}
+                  whileTap={{ scale: 0.95, borderRadius: "32px" }}
                   className="p-10 bg-white/40 backdrop-blur-xl rounded-2xl shadow-xl shadow-black/5 transition-all duration-500 group border border-white/20 h-full relative overflow-hidden"
                 >
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-orange to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -1057,7 +1085,10 @@ const Experience = () => {
         <div className="flex flex-col">
           {items.map((item, i) => (
             <Reveal key={i} delay={i * 0.1}>
-              <div className="group flex flex-col md:flex-row md:items-center justify-between py-12 border-b border-black/10 hover:bg-black/5 px-6 transition-all duration-700 rounded-xl">
+              <motion.div 
+                whileTap={{ scale: 0.98, backgroundColor: "rgba(0,0,0,0.05)" }}
+                className="group flex flex-col md:flex-row md:items-center justify-between py-12 border-b border-black/10 hover:bg-black/5 px-6 transition-all duration-700 rounded-xl cursor-pointer"
+              >
                 <div className="flex items-center gap-10 mb-6 md:mb-0">
                   <span className="text-xs font-bold text-black/30 tracking-widest">0{i + 1}</span>
                   <h3 className="text-2xl md:text-5xl font-black uppercase tracking-tighter group-hover:text-brand-orange transition-colors duration-700">
@@ -1086,7 +1117,7 @@ const Experience = () => {
                     View Project
                   </motion.button>
                 </div>
-              </div>
+              </motion.div>
             </Reveal>
           ))}
         </div>
@@ -1160,6 +1191,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showContent, setShowContent] = useState(false);
+  const { scrollYProgress } = useScroll();
 
   return (
     <div className="relative">
@@ -1190,6 +1222,10 @@ export default function App() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
+          <motion.div
+            className="fixed top-0 left-0 right-0 h-1 bg-brand-orange origin-left z-[100]"
+            style={{ scaleX: scrollYProgress }}
+          />
           <CursorFollower />
           <BackgroundEffects />
           <Navbar />

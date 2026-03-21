@@ -843,7 +843,7 @@ const Portfolio = () => {
         <div className="relative mb-16 md:mb-24">
           <motion.h2 
             style={{ y: titleY }}
-            className="text-[15vw] md:text-[12vw] font-black uppercase tracking-tighter opacity-10 absolute -top-24 md:-top-32 left-0 pointer-events-none"
+            className="text-[15vw] md:text-[12vw] font-black uppercase tracking-tighter opacity-10 absolute -top-12 md:-top-16 left-0 pointer-events-none"
           >
             portfolio
           </motion.h2>

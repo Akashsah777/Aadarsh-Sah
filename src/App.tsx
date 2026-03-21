@@ -594,7 +594,7 @@ const Hero = () => {
               ))}
             </div>
 
-            <div className="grid grid-cols-2 gap-12">
+            <div className="grid grid-cols-2 gap-6 md:gap-12">
               <Reveal delay={0.4}>
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
@@ -825,20 +825,20 @@ const Portfolio = () => {
           >
             portfolio
           </motion.h2>
-          <div className="flex flex-col md:flex-row md:items-end justify-between relative z-10 gap-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between relative z-10 gap-6 md:gap-8">
             <div>
               <p className="text-brand-orange font-bold uppercase tracking-[0.3em] text-xs mb-3">Selected Works</p>
-              <h3 className="text-6xl md:text-8xl font-black uppercase tracking-tighter">my expertise </h3>
+              <h3 className="text-5xl md:text-8xl font-black uppercase tracking-tighter">my expertise </h3>
             </div>
             
             {/* Category Tabs */}
             <Reveal delay={0.2}>
-              <div className="flex p-1 bg-white/40 backdrop-blur-xl rounded-full border border-white/20 shadow-xl shadow-black/5 relative">
+              <div className="flex flex-wrap justify-center gap-2 p-2 md:p-1 bg-white/40 backdrop-blur-xl rounded-2xl md:rounded-full border border-white/20 shadow-xl shadow-black/5 relative">
                 {categories.map((cat) => (
                   <Magnetic key={cat}>
                     <button
                       onClick={() => setActiveCategory(cat)}
-                      className={`relative px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors duration-300 z-10 ${
+                      className={`relative px-4 md:px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors duration-300 z-10 ${
                         activeCategory === cat 
                           ? 'text-white' 
                           : 'text-black/40 hover:text-black'
@@ -1065,8 +1065,8 @@ const Experience = () => {
                   </h3>
                 </div>
                 
-                <div className="flex flex-col md:flex-row md:items-center gap-8 md:gap-16">
-                  <div className="text-right md:text-left">
+                <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-16">
+                  <div className="text-left">
                     <p className="text-sm font-bold uppercase tracking-[0.2em] mb-1">{item.location}</p>
                     <p className="text-xs text-black/40 uppercase tracking-[0.2em]">{item.date}</p>
                   </div>
@@ -1102,7 +1102,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-24 md:mb-40">
           <Reveal className="lg:col-span-2">
             <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-10 leading-none">Let's create<br />something <span className="text-brand-orange">epic</span>.</h2>
-            <a href="mailto:hello@aadarshsah.com" className="text-2xl md:text-3xl font-bold underline hover:text-brand-orange transition-all duration-300 group inline-block">
+            <a href="mailto:hello@aadarshsah.com" className="text-xl md:text-3xl font-bold underline hover:text-brand-orange transition-all duration-300 group inline-block break-all">
               <span className="group-hover:animate-glitch inline-block">hello@aadarshsah.com</span>
             </a>
           </Reveal>

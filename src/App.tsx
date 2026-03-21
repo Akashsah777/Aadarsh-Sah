@@ -1148,7 +1148,7 @@ const Footer = () => {
   return (
     <footer id="contact" className="bg-brand-bg pt-24 md:pt-40 pb-12 px-6 overflow-hidden">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-24 md:mb-40">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-16 md:mb-24">
           <Reveal className="lg:col-span-2">
             <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-10 leading-none">Let's create<br />something <span className="text-brand-orange">epic</span>.</h2>
             <a href="mailto:hello@aadarshsah.com" className="text-xl md:text-3xl font-bold underline hover:text-brand-orange transition-all duration-300 group inline-block break-all">
@@ -1190,8 +1190,8 @@ const Footer = () => {
           </Reveal>
         </div>
 
-        <Reveal delay={0.5} className="relative">
-          <h1 className="text-[20vw] font-black uppercase tracking-tighter leading-none text-black select-none pointer-events-none opacity-100">
+        <Reveal delay={0.5} className="relative -mt-8 md:-mt-12">
+          <h1 className="text-[16vw] font-black uppercase tracking-tighter leading-[0.8] text-black select-none pointer-events-none opacity-100 pb-4 md:pb-8">
             Aadarsh Sah
           </h1>
           <div className="absolute bottom-0 right-0 p-4 text-[10px] font-bold uppercase tracking-[0.3em] text-black/40">

@@ -323,28 +323,6 @@ const Preloader = ({ onComplete }: { onComplete: () => void, key?: string }) => 
   );
 };
 
-const MorphingBlob = ({ className = "", color = "bg-brand-orange/20" }: { className?: string, color?: string }) => {
-  return (
-    <motion.div
-      animate={{
-        borderRadius: [
-          "40% 60% 70% 30% / 40% 50% 60% 50%",
-          "60% 40% 30% 70% / 50% 60% 40% 60%",
-          "40% 60% 70% 30% / 40% 50% 60% 50%",
-        ],
-        scale: [1, 1.1, 1],
-        rotate: [0, 90, 0],
-      }}
-      transition={{
-        duration: 15,
-        repeat: Infinity,
-        ease: "easeInOut",
-      }}
-      className={`absolute blur-[80px] ${color} ${className}`}
-    />
-  );
-};
-
 const BackgroundEffects = () => {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -384,11 +362,6 @@ const BackgroundEffects = () => {
         className="absolute bottom-[20%] right-[10%] w-96 h-96 border border-white/40 bg-white/10 backdrop-blur-2xl rounded-[4rem] -rotate-6 z-0 shadow-2xl shadow-black/5" 
       />
       
-      {/* Morphing Background Blobs */}
-      <MorphingBlob className="top-[-10%] left-[-10%] w-[60vw] h-[60vw]" />
-      <MorphingBlob className="bottom-[-10%] right-[-10%] w-[50vw] h-[50vw]" color="bg-white/20" />
-      <MorphingBlob className="top-[30%] right-[10%] w-[30vw] h-[30vw]" color="bg-brand-orange/5" />
-
       {/* Persistent Film Grain */}
       <div className="absolute inset-0 opacity-[0.02] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat" />
     </div>
@@ -651,65 +624,51 @@ const Hero = () => {
         </motion.div>
 
         <motion.div 
-          style={{ y: y1, rotate, opacity }}
           variants={imageVariants}
           initial="hidden"
           animate="visible"
           className="relative"
         >
           {/* Main Hero Image Card */}
-          <TiltCard>
-            <div className="relative z-10 aspect-[4/5] rounded-[40px] overflow-hidden bg-brand-orange shadow-2xl group">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10" />
-              <img 
-                src="https://iili.io/qkR5xig.md.jpg" 
-                alt="Aadarsh Sah" 
-                className="w-full h-full object-cover transition-all duration-1000 ease-in-out group-hover:scale-105 brightness-95 group-hover:brightness-100 sepia-[.05] group-hover:sepia-0"
-                referrerPolicy="no-referrer"
-              />
-              
-              {/* Floating UI Elements */}
-              <div className="absolute top-8 left-8">
-                <div className="w-12 h-12 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/30 shadow-xl">
-                  <Camera size={24} className="text-white" />
-                </div>
-              </div>
-
-              <div className="absolute bottom-8 right-8">
-                <motion.div 
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                  className="w-24 h-24 bg-black rounded-full flex items-center justify-center relative"
-                >
-                  <ArrowUpRight size={32} className="text-brand-orange" />
-                  <div className="absolute inset-0 border-2 border-dashed border-brand-orange/30 rounded-full scale-110" />
-                </motion.div>
+          <div className="relative z-10 aspect-[4/5] rounded-[40px] overflow-hidden bg-brand-orange shadow-2xl group">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10" />
+            <img 
+              src="https://iili.io/qkR5xig.md.jpg" 
+              alt="Aadarsh Sah" 
+              className="w-full h-full object-cover transition-all duration-1000 ease-in-out group-hover:scale-105 brightness-95 group-hover:brightness-100 sepia-[.05] group-hover:sepia-0"
+              referrerPolicy="no-referrer"
+            />
+            
+            {/* Floating UI Elements */}
+            <div className="absolute top-8 left-8">
+              <div className="w-12 h-12 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center border border-white/30 shadow-xl">
+                <Camera size={24} className="text-white" />
               </div>
             </div>
-          </TiltCard>
+
+            <div className="absolute bottom-8 right-8">
+              <motion.div 
+                animate={{ rotate: 360 }}
+                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                className="w-24 h-24 bg-black rounded-full flex items-center justify-center relative"
+              >
+                <ArrowUpRight size={32} className="text-brand-orange" />
+                <div className="absolute inset-0 border-2 border-dashed border-brand-orange/30 rounded-full scale-110" />
+              </motion.div>
+            </div>
+          </div>
 
           {/* Floating Image Bubble */}
-          <Magnetic>
-            <motion.div
-              animate={{
-                y: [0, -20, 0],
-                x: [0, 10, 0],
-              }}
-              transition={{
-                duration: 5,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-              className="absolute -top-12 -left-12 w-32 h-32 rounded-full overflow-hidden border-4 border-white/40 backdrop-blur-xl shadow-2xl z-20 hidden md:block cursor-pointer"
-            >
-              <img 
-                src="https://picsum.photos/seed/filmmaker/400/400" 
-                alt="Aadarsh Sah Mini" 
-                className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500"
-                referrerPolicy="no-referrer"
-              />
-            </motion.div>
-          </Magnetic>
+          <div
+            className="absolute -top-12 -left-12 w-32 h-32 rounded-full overflow-hidden border-4 border-white/40 backdrop-blur-xl shadow-2xl z-20 hidden md:block cursor-pointer"
+          >
+            <img 
+              src="https://picsum.photos/seed/filmmaker/400/400" 
+              alt="Aadarsh Sah Mini" 
+              className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500"
+              referrerPolicy="no-referrer"
+            />
+          </div>
 
           {/* Decorative Elements */}
           <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand-orange/10 rounded-full blur-3xl" />
@@ -778,7 +737,7 @@ const About = () => {
 
           <div className="max-w-3xl">
             <Reveal>
-              <h2 className="text-5xl md:text-8xl font-black uppercase mb-10 tracking-tighter leading-none">
+              <h2 className="text-4xl md:text-8xl font-black uppercase mb-10 tracking-tighter leading-none">
                 Capturing the <span className="text-brand-orange">Unseen</span>
               </h2>
             </Reveal>
@@ -986,7 +945,7 @@ const Gallery = () => {
     <section id="gallery" className="py-24 md:py-40 px-6 bg-black text-white">
       <div className="max-w-7xl mx-auto">
         <Reveal className="text-center mb-16 md:mb-24">
-          <h2 className="text-5xl md:text-8xl font-black uppercase tracking-tighter mb-6">Behind the <span className="text-brand-orange">Lens</span></h2>
+          <h2 className="text-4xl md:text-8xl font-black uppercase tracking-tighter mb-6">Behind the <span className="text-brand-orange">Lens</span></h2>
           <p className="text-white/50 max-w-xl mx-auto text-lg">A collection of moments from the field, showcasing the gear, the process, and the passion.</p>
         </Reveal>
 
@@ -1037,7 +996,7 @@ const Services = () => {
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 md:gap-16">
           <Reveal className="lg:col-span-1">
-            <h2 className="text-5xl md:text-6xl font-black uppercase tracking-tighter mb-8">Services</h2>
+            <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-8">Services</h2>
             <p className="text-black/60 mb-10 text-lg leading-relaxed">Elevating your vision through premium production and post-production services.</p>
             <div className="w-20 h-1.5 bg-brand-orange rounded-full" />
           </Reveal>
@@ -1092,7 +1051,7 @@ const Experience = () => {
     <section className="py-24 md:py-40 px-6 bg-brand-bg border-t border-black/5">
       <div className="max-w-7xl mx-auto">
         <Reveal>
-          <h2 className="text-[15vw] md:text-[10vw] font-black uppercase tracking-tighter opacity-5 mb-16 md:mb-24 leading-none">exhibitions</h2>
+          <h2 className="text-[12vw] md:text-[10vw] font-black uppercase tracking-tighter opacity-5 mb-16 md:mb-24 leading-none">exhibitions</h2>
         </Reveal>
         
         <div className="flex flex-col">
@@ -1101,7 +1060,7 @@ const Experience = () => {
               <div className="group flex flex-col md:flex-row md:items-center justify-between py-12 border-b border-black/10 hover:bg-black/5 px-6 transition-all duration-700 rounded-xl">
                 <div className="flex items-center gap-10 mb-6 md:mb-0">
                   <span className="text-xs font-bold text-black/30 tracking-widest">0{i + 1}</span>
-                  <h3 className="text-3xl md:text-5xl font-black uppercase tracking-tighter group-hover:text-brand-orange transition-colors duration-700">
+                  <h3 className="text-2xl md:text-5xl font-black uppercase tracking-tighter group-hover:text-brand-orange transition-colors duration-700">
                     {item.title}
                   </h3>
                 </div>

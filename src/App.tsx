@@ -25,82 +25,11 @@ import {
 
 // --- Components ---
 
-const ClickSpark = () => {
-  const [sparks, setSparks] = useState<{ id: number; x: number; y: number }[]>([]);
-  const [isTouch, setIsTouch] = useState(false);
-
-  useEffect(() => {
-    setIsTouch('ontouchstart' in window || navigator.maxTouchPoints > 0);
-    
-    const handleClick = (e: MouseEvent) => {
-      if ('ontouchstart' in window || navigator.maxTouchPoints > 0) return;
-      const newSpark = { id: Date.now(), x: e.clientX, y: e.clientY };
-      setSparks((prev) => [...prev, newSpark]);
-      setTimeout(() => {
-        setSparks((prev) => prev.filter((s) => s.id !== newSpark.id));
-      }, 1000);
-    };
-
-    window.addEventListener("click", handleClick);
-    return () => window.removeEventListener("click", handleClick);
-  }, []);
-
-  if (isTouch) return null;
-
-  return (
-    <div className="fixed inset-0 pointer-events-none z-[99999] overflow-hidden">
-      <AnimatePresence>
-        {sparks.map((spark) => (
-          <motion.div
-            key={spark.id}
-            initial={{ opacity: 1, scale: 0 }}
-            animate={{ opacity: 0, scale: 1.5 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            style={{
-              position: "absolute",
-              left: spark.x,
-              top: spark.y,
-              x: "-50%",
-              y: "-50%",
-            }}
-          >
-            {[...Array(8)].map((_, i) => (
-              <motion.div
-                key={i}
-                initial={{ x: 0, y: 0, opacity: 1 }}
-                animate={{
-                  x: Math.cos((i * 45 * Math.PI) / 180) * 60,
-                  y: Math.sin((i * 45 * Math.PI) / 180) * 60,
-                  opacity: 0,
-                  scale: 0,
-                }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className="absolute w-1 h-4 bg-brand-orange rounded-full"
-                style={{
-                  rotate: i * 45,
-                  transformOrigin: "center bottom",
-                }}
-              />
-            ))}
-            <motion.div
-              initial={{ scale: 0, opacity: 0.5 }}
-              animate={{ scale: 2, opacity: 0 }}
-              className="w-12 h-12 border-2 border-brand-orange rounded-full"
-            />
-          </motion.div>
-        ))}
-      </AnimatePresence>
-    </div>
-  );
-};
-
 const CursorFollower = () => {
   const cursorX = useMotionValue(-100);
   const cursorY = useMotionValue(-100);
   const [isPressed, setIsPressed] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
-  const [isTouch, setIsTouch] = useState(false);
 
   const OFFSET = 24;
   const springConfig = { damping: 25, stiffness: 300 };
@@ -108,9 +37,6 @@ const CursorFollower = () => {
   const springY = useSpring(cursorY, springConfig);
 
   useEffect(() => {
-    setIsTouch('ontouchstart' in window || navigator.maxTouchPoints > 0);
-    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) return;
-
     const moveCursor = (e: MouseEvent) => {
       cursorX.set(e.clientX + OFFSET);
       cursorY.set(e.clientY + OFFSET);
@@ -133,8 +59,6 @@ const CursorFollower = () => {
       window.removeEventListener('mouseup', handleMouseUp);
     };
   }, [cursorX, cursorY]);
-
-  if (isTouch) return null;
 
   return (
     <>
@@ -312,7 +236,7 @@ const ShutterTransition = ({ onComplete }: { onComplete: () => void, key?: strin
     <motion.div
       initial={{ opacity: 1 }}
       animate={{ opacity: 0 }}
-      transition={{ duration: 0.8, delay: 0.8, ease: [0.19, 1, 0.22, 1] }}
+      transition={{ duration: 1, delay: 2, ease: [0.19, 1, 0.22, 1] }}
       onAnimationComplete={onComplete}
       className="fixed inset-0 z-[95] bg-brand-bg flex flex-col items-center justify-center pointer-events-none"
     >
@@ -329,13 +253,13 @@ const ShutterTransition = ({ onComplete }: { onComplete: () => void, key?: strin
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: "100%" }}
-          transition={{ delay: 0.4, duration: 0.7 }}
+          transition={{ delay: 0.5, duration: 0.8 }}
           className="h-[1px] bg-black/10 mt-4 max-w-[200px]"
         />
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
+          transition={{ delay: 0.8 }}
           className="mt-4 text-[10px] uppercase tracking-[0.8em] font-black text-black/30"
         >
           Visual Artist
@@ -346,50 +270,26 @@ const ShutterTransition = ({ onComplete }: { onComplete: () => void, key?: strin
 };
 
 const Preloader = ({ onComplete }: { onComplete: () => void, key?: string }) => {
-  const words = ["STORYTELLING", "CINEMATOGRAPHY", "EDITING", "VISION", "MOTION"];
+  const words = ["STORYTELLING", "CINEMATOGRAPHY", "EDITING", "VISION"];
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
-    if (index < words.length) {
-      const timeout = setTimeout(() => setIndex(index + 1), 850);
+    if (index < words.length - 1) {
+      const timeout = setTimeout(() => setIndex(index + 1), 1200);
       return () => clearTimeout(timeout);
     } else {
-      setTimeout(onComplete, 1200);
+      const timeout = setTimeout(onComplete, 1200);
+      return () => clearTimeout(timeout);
     }
-  }, [index, onComplete]);
+  }, [index, onComplete, words.length]);
 
   return (
     <motion.div 
       initial={{ opacity: 1 }}
-      exit={{ opacity: 0, filter: "blur(40px)", scale: 1.1 }}
-      transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.5 }}
       className="fixed inset-0 z-[100] bg-black flex items-center justify-center overflow-hidden"
     >
-      {/* Film Grain Overlay */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat" />
-      
-      {/* Cinematic Background Glows */}
-      <motion.div 
-        animate={{ 
-          scale: [1, 1.3, 1],
-          opacity: [0.1, 0.25, 0.1],
-          x: [0, 30, 0],
-          y: [0, -30, 0]
-        }}
-        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-1/4 left-1/4 w-[60vw] h-[60vw] bg-brand-orange/15 rounded-full blur-[150px]"
-      />
-      <motion.div 
-        animate={{ 
-          scale: [1.3, 1, 1.3],
-          opacity: [0.05, 0.2, 0.05],
-          x: [0, -40, 0],
-          y: [0, 40, 0]
-        }}
-        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute bottom-1/4 right-1/4 w-[50vw] h-[50vw] bg-white/10 rounded-full blur-[120px]"
-      />
-
       <div className="relative flex items-center justify-center">
         <AnimatePresence mode="wait">
           <motion.div
@@ -398,33 +298,14 @@ const Preloader = ({ onComplete }: { onComplete: () => void, key?: string }) => 
           >
             {/* Main Text */}
             <motion.h2 
-              initial={{ opacity: 0, y: 20, scale: 0.95, filter: "blur(15px)", letterSpacing: "0.25em" }}
-              animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)", letterSpacing: "0.1em" }}
-              exit={{ opacity: 0, y: -20, scale: 1.05, filter: "blur(15px)", letterSpacing: "0.25em" }}
-              transition={{ duration: 0.7, ease: [0.19, 1, 0.22, 1] }}
-              className="text-4xl md:text-8xl font-black text-white tracking-tighter relative z-10"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.5 }}
+              className="text-4xl md:text-8xl font-black text-white tracking-tighter"
             >
-              {words[index] || "VISUAL"}
+              {words[index]}
             </motion.h2>
-
-            {/* Cinematic Glow Layer */}
-            <motion.h2 
-              initial={{ opacity: 0, scale: 0.95, filter: "blur(25px)" }}
-              animate={{ opacity: 0.5, scale: 1.02, filter: "blur(15px)" }}
-              exit={{ opacity: 0, scale: 1.05, filter: "blur(25px)" }}
-              transition={{ duration: 0.7, ease: [0.19, 1, 0.22, 1] }}
-              className="absolute inset-0 text-4xl md:text-8xl font-black text-brand-orange tracking-tighter z-0 pointer-events-none"
-            >
-              {words[index] || "VISUAL"}
-            </motion.h2>
-
-            {/* Shimmer Effect */}
-            <motion.div
-              initial={{ x: "-100%" }}
-              animate={{ x: "100%" }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "linear", repeatDelay: 0.5 }}
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg] z-20 pointer-events-none"
-            />
           </motion.div>
         </AnimatePresence>
       </div>
@@ -559,14 +440,13 @@ const Navbar = () => {
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
-              <motion.a 
-                key={link.name} 
-                href={link.href} 
-                whileTap={{ scale: 0.85, rotate: -3 }}
-                className="text-sm font-black uppercase tracking-widest hover:text-brand-orange transition-colors"
-              >
-                <ScrambleText text={link.name} />
-              </motion.a>
+            <a 
+              key={link.name} 
+              href={link.href} 
+              className="text-sm font-black uppercase tracking-widest hover:text-brand-orange transition-colors"
+            >
+              <ScrambleText text={link.name} />
+            </a>
           ))}
           <Magnetic>
             <motion.div 
@@ -576,7 +456,7 @@ const Navbar = () => {
                 color: "#000",
                 boxShadow: "0 10px 30px -10px rgba(255, 159, 28, 0.5)"
               }}
-              whileTap={{ scale: 0.8, rotate: 5 }}
+              whileTap={{ scale: 0.95 }}
               className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest bg-black text-white px-4 py-2 rounded-full shadow-lg shadow-black/10 cursor-pointer transition-all duration-300"
             >
               <span className="w-2 h-2 bg-brand-orange rounded-full animate-pulse" />
@@ -598,47 +478,21 @@ const Navbar = () => {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div 
-            initial={{ opacity: 0, x: "100%" }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed inset-0 z-[60] bg-black md:hidden flex flex-col items-center justify-center gap-8"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute top-full left-0 w-full bg-white/60 backdrop-blur-2xl border-b border-white/20 p-6 md:hidden flex flex-col gap-4 shadow-2xl"
           >
-            <button 
-              className="absolute top-6 right-6 p-2 text-white"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <X size={32} />
-            </button>
-
-            <div className="flex flex-col items-center gap-6">
-              {navLinks.map((link, i) => (
-                <motion.a 
-                  key={link.name} 
-                  href={link.href} 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 + 0.2 }}
-                  className="text-4xl font-black uppercase tracking-tighter text-white hover:text-brand-orange transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {link.name}
-                </motion.a>
-              ))}
-            </div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              className="mt-12 flex gap-6"
-            >
-              {[<Youtube />, <Instagram />, <Twitter />].map((icon, i) => (
-                <div key={i} className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center text-white">
-                  {icon}
-                </div>
-              ))}
-            </motion.div>
+            {navLinks.map((link) => (
+              <a 
+                key={link.name} 
+                href={link.href} 
+                className="text-2xl font-bold hover:text-brand-orange transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {link.name}
+              </a>
+            ))}
           </motion.div>
         )}
       </AnimatePresence>
@@ -685,30 +539,29 @@ const Hero = () => {
   };
 
   return (
-    <section id="home" className="min-h-screen pt-28 md:pt-32 pb-12 md:pb-20 px-6 overflow-hidden relative">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16 items-center relative z-10">
+    <section id="home" className="min-h-screen pt-24 md:pt-32 pb-12 md:pb-20 px-6 overflow-hidden relative">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center relative z-10">
         <motion.div 
           style={{ y: y2 }}
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="order-2 lg:order-1"
         >
           <motion.p 
             variants={itemVariants}
-            className="text-[10px] md:text-xs uppercase tracking-[0.4em] font-bold text-black/40 mb-4 md:mb-6"
+            className="text-[10px] md:text-xs uppercase tracking-[0.4em] font-bold text-black/40 mb-6"
           >
             "Editing is where the movie is made."
           </motion.p>
           <motion.h1 
             variants={itemVariants}
-            className="text-6xl md:text-7xl lg:text-8xl font-black uppercase mb-6 md:mb-8 relative leading-[0.85] tracking-tight"
+            className="text-5xl md:text-7xl lg:text-8xl font-black uppercase mb-8 relative leading-[0.9] tracking-tight"
           >
             <div className="relative overflow-hidden group">
               <motion.span 
-                initial={{ y: "100%", opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
+                initial={{ y: "100%", opacity: 0, letterSpacing: "0.2em" }}
+                animate={{ y: 0, opacity: 1, letterSpacing: "-0.02em" }}
+                transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
                 className="block text-black group-hover:animate-glitch" 
               >
                 AADARSH
@@ -716,9 +569,9 @@ const Hero = () => {
             </div>
             <div className="relative overflow-hidden group">
               <motion.span 
-                initial={{ y: "100%", opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.05, ease: [0.19, 1, 0.22, 1] }}
+                initial={{ y: "100%", opacity: 0, letterSpacing: "0.2em" }}
+                animate={{ y: 0, opacity: 1, letterSpacing: "-0.02em" }}
+                transition={{ duration: 1.2, delay: 0.1, ease: [0.19, 1, 0.22, 1] }}
                 className="block text-brand-orange group-hover:animate-glitch" 
               >
                 SAH
@@ -735,7 +588,7 @@ const Hero = () => {
           </motion.h1>
           
           <motion.div variants={itemVariants} className="max-w-md">
-            <p className="text-lg font-medium mb-2">Aadarsh Sah — Video Editor & Cameraman</p>
+            <p className="text-lg font-medium mb-2">Aadarsh Sah — Video Editor & Graphic Designer</p>
             <p className="text-black/60 mb-8 leading-relaxed">
               Welcome to a visual journey that transcends time and space. Discover the artistry of moments captured in motion.
             </p>
@@ -758,12 +611,8 @@ const Hero = () => {
                       rotate: 10,
                       boxShadow: "0 10px 20px -5px rgba(255, 159, 28, 0.4)"
                     }}
-                    whileTap={{ 
-                      scale: 0.75, 
-                      rotate: -15,
-                      borderRadius: "50%",
-                    }}
-                    transition={{ type: "spring", stiffness: 600, damping: 12 }}
+                    whileTap={{ scale: 0.9 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 15 }}
                     className="w-10 h-10 rounded-full border border-black/10 flex items-center justify-center transition-all duration-500 bg-white/50 backdrop-blur-sm"
                   >
                     {item.icon}
@@ -806,15 +655,16 @@ const Hero = () => {
           variants={imageVariants}
           initial="hidden"
           animate="visible"
-          className="relative order-1 lg:order-2 mb-8 lg:mb-0"
+          className="relative"
         >
           {/* Main Hero Image Card */}
           <TiltCard>
             <div className="relative z-10 aspect-[4/5] rounded-[40px] overflow-hidden bg-brand-orange shadow-2xl group">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10" />
               <img 
-                src="https://picsum.photos/seed/filmmaker/800/1000" 
+                src="https://iili.io/qkR5xig.md.jpg" 
                 alt="Aadarsh Sah" 
-                className="w-full h-full object-cover mix-blend-multiply grayscale hover:grayscale-0 transition-all duration-1000 ease-in-out"
+                className="w-full h-full object-cover transition-all duration-1000 ease-in-out group-hover:scale-105 brightness-95 group-hover:brightness-100 sepia-[.05] group-hover:sepia-0"
                 referrerPolicy="no-referrer"
               />
               
@@ -866,20 +716,12 @@ const Hero = () => {
           <div className="absolute -bottom-10 -left-10 w-60 h-60 bg-black/5 rounded-full blur-3xl" />
           
           <div className="absolute top-1/2 -right-4 translate-y-[-50%] z-20 flex flex-col gap-3 md:gap-4 scale-75 md:scale-100">
-            <motion.div 
-              whileHover={{ scale: 1.1, rotate: 5 }}
-              whileTap={{ scale: 0.8, rotate: -10 }}
-              className="w-14 h-14 bg-white rounded-2xl shadow-xl flex items-center justify-center border border-black/5 cursor-pointer"
-            >
+            <div className="w-14 h-14 bg-white rounded-2xl shadow-xl flex items-center justify-center border border-black/5">
               <Video size={24} className="text-black" />
-            </motion.div>
-            <motion.div 
-              whileHover={{ scale: 1.1, rotate: -5 }}
-              whileTap={{ scale: 0.8, rotate: 10 }}
-              className="w-14 h-14 bg-brand-orange rounded-2xl shadow-xl flex items-center justify-center cursor-pointer"
-            >
+            </div>
+            <div className="w-14 h-14 bg-brand-orange rounded-2xl shadow-xl flex items-center justify-center">
               <Film size={24} className="text-white" />
-            </motion.div>
+            </div>
           </div>
         </motion.div>
       </div>
@@ -902,8 +744,8 @@ const About = () => {
       />
       
       {/* Scrolling Text Background */}
-      <div className="absolute top-10 left-0 w-full overflow-hidden opacity-10 pointer-events-none select-none">
-        <div className="scrolling-text flex gap-10 text-[6rem] md:text-[10rem] font-black uppercase whitespace-nowrap">
+      <div className="absolute top-10 left-0 w-full overflow-hidden opacity-10 pointer-events-none">
+        <div className="scrolling-text flex gap-10 text-[6rem] md:text-[10rem] font-black uppercase">
           <span>about . about . about . about . about . about .</span>
           <span>about . about . about . about . about . about .</span>
         </div>
@@ -953,19 +795,11 @@ const About = () => {
                 { num: '03', title: 'Impact', desc: 'Creating content that drives engagement and results.' }
               ].map((item, i) => (
                 <Reveal key={i} delay={0.3 + i * 0.1}>
-                  <motion.div 
-                    whileHover={{ 
-                      y: -10,
-                      borderColor: "rgba(255, 159, 28, 0.5)",
-                      backgroundColor: "rgba(255, 255, 255, 0.1)"
-                    }}
-                    whileTap={{ scale: 0.95, rotate: -1 }}
-                    className="p-8 border border-white/10 bg-white/5 backdrop-blur-md rounded-2xl transition-all group h-full shadow-xl shadow-black/10 cursor-pointer"
-                  >
+                  <div className="p-8 border border-white/10 bg-white/5 backdrop-blur-md rounded-2xl hover:bg-white/10 transition-all hover:border-brand-orange/50 group h-full shadow-xl shadow-black/10">
                     <p className="text-brand-orange font-bold mb-4 tracking-widest">{item.num}</p>
                     <h3 className="text-2xl font-bold mb-3 uppercase tracking-tighter">{item.title}</h3>
                     <p className="text-sm text-white/50 leading-relaxed">{item.desc}</p>
-                  </motion.div>
+                  </div>
                 </Reveal>
               ))}
             </div>
@@ -977,20 +811,44 @@ const About = () => {
 };
 
 const Portfolio = () => {
-  const [filter, setFilter] = useState('all');
+  const [activeCategory, setActiveCategory] = useState('social media posts');
   const { scrollYProgress } = useScroll();
   const titleY = useTransform(scrollYProgress, [0, 1], [0, -150]);
   
-  const projects = [
-    { title: 'Travel Film', category: 'Cinematography', size: 'large', img: 'https://picsum.photos/seed/travel/800/600' },
-    { title: 'Wedding Edit', category: 'Editing', size: 'small', img: 'https://picsum.photos/seed/wedding/400/600' },
-    { title: 'Music Video', category: 'Direction', size: 'small', img: 'https://picsum.photos/seed/music/400/600' },
-    { title: 'Brand Story', category: 'Editing', size: 'medium', img: 'https://picsum.photos/seed/brand/600/400' },
-    { title: 'Nature Doc', category: 'Cinematography', size: 'medium', img: 'https://picsum.photos/seed/nature/600/400' },
-    { title: 'Action Reel', category: 'Editing', size: 'small', img: 'https://picsum.photos/seed/action/400/600' },
-  ];
+  const categories = ['social media posts', 'ai posts', 'commercial work', 'thumbnails'];
+  
+  const projects = {
+    'social media posts': [
+      { title: 'Travel Film', size: 'large', img: 'https://picsum.photos/seed/travel/800/600' },
+      { title: 'Nature Doc', size: 'medium', img: 'https://picsum.photos/seed/nature/600/400' },
+      { title: 'Street Life', size: 'small', img: 'https://picsum.photos/seed/street/400/600' },
+      { title: 'Urban Flow', size: 'small', img: 'https://picsum.photos/seed/urban/400/600' },
+      { title: 'Mountain Peak', size: 'medium', img: 'https://picsum.photos/seed/mountain/600/400' },
+    ],
+    'ai posts': [
+      { title: 'Wedding Edit', size: 'small', img: 'https://picsum.photos/seed/wedding/400/600' },
+      { title: 'Brand Story', size: 'medium', img: 'https://picsum.photos/seed/brand/600/400' },
+      { title: 'Action Reel', size: 'small', img: 'https://picsum.photos/seed/action/400/600' },
+      { title: 'Tech Future', size: 'large', img: 'https://picsum.photos/seed/tech/800/600' },
+      { title: 'Abstract Art', size: 'small', img: 'https://picsum.photos/seed/abstract/400/600' },
+    ],
+    'commercial work': [
+      { title: 'Music Video', size: 'small', img: 'https://picsum.photos/seed/music/400/600' },
+      { title: 'Fashion Shoot', size: 'medium', img: 'https://picsum.photos/seed/fashion/600/400' },
+      { title: 'Product Ad', size: 'small', img: 'https://picsum.photos/seed/product/400/600' },
+      { title: 'Corporate Event', size: 'large', img: 'https://picsum.photos/seed/corporate/800/600' },
+      { title: 'Food Promo', size: 'small', img: 'https://picsum.photos/seed/food/400/600' },
+    ],
+    'thumbnails': [
+      { title: 'Studio Session', size: 'medium', img: 'https://picsum.photos/seed/studio/600/400' },
+      { title: 'Portrait Study', size: 'small', img: 'https://picsum.photos/seed/portrait/400/600' },
+      { title: 'Landscape View', size: 'large', img: 'https://picsum.photos/seed/landscape/800/600' },
+      { title: 'Night City', size: 'small', img: 'https://picsum.photos/seed/night/400/600' },
+      { title: 'Morning Light', size: 'medium', img: 'https://picsum.photos/seed/morning/600/400' },
+    ]
+  };
 
-  const filteredProjects = filter === 'all' ? projects : projects.filter(p => p.category === filter);
+  const activeProjects = projects[activeCategory as keyof typeof projects];
 
   return (
     <section id="portfolio" className="py-24 md:py-40 px-6 bg-brand-bg relative overflow-hidden">
@@ -1004,30 +862,30 @@ const Portfolio = () => {
         <div className="relative mb-16 md:mb-24">
           <motion.h2 
             style={{ y: titleY }}
-            className="text-[15vw] md:text-[12vw] font-black uppercase tracking-tighter opacity-10 absolute -top-12 md:-top-20 left-0 pointer-events-none"
+            className="text-[15vw] md:text-[12vw] font-black uppercase tracking-tighter opacity-10 absolute -top-24 md:-top-32 left-0 pointer-events-none"
           >
             portfolio
           </motion.h2>
           <div className="flex flex-col md:flex-row md:items-end justify-between relative z-10 gap-8">
             <div>
               <p className="text-brand-orange font-bold uppercase tracking-[0.3em] text-xs mb-3">Selected Works</p>
-              <h3 className="text-5xl md:text-6xl font-black uppercase tracking-tighter">Cinematic Projects</h3>
+              <h3 className="text-6xl md:text-8xl font-black uppercase tracking-tighter">my expertise </h3>
             </div>
             
-            {/* Toggle Switch / Filter */}
+            {/* Category Tabs */}
             <Reveal delay={0.2}>
               <div className="flex p-1 bg-white/40 backdrop-blur-xl rounded-full border border-white/20 shadow-xl shadow-black/5 relative">
-                {['all', 'Cinematography', 'Editing'].map((cat) => (
+                {categories.map((cat) => (
                   <Magnetic key={cat}>
                     <button
-                      onClick={() => setFilter(cat)}
+                      onClick={() => setActiveCategory(cat)}
                       className={`relative px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors duration-300 z-10 ${
-                        filter === cat 
+                        activeCategory === cat 
                           ? 'text-white' 
                           : 'text-black/40 hover:text-black'
                       }`}
                     >
-                      {filter === cat && (
+                      {activeCategory === cat && (
                         <motion.div
                           layoutId="active-pill"
                           className="absolute inset-0 bg-black rounded-full shadow-lg shadow-black/20"
@@ -1050,7 +908,7 @@ const Portfolio = () => {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
           <AnimatePresence mode="popLayout">
-            {filteredProjects.map((project, i) => (
+            {activeProjects.map((project, i) => (
               <TiltCard 
                 key={project.title}
                 className={`relative rounded-2xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-700 ${
@@ -1067,7 +925,6 @@ const Portfolio = () => {
                     y: -10,
                     borderRadius: "40px 16px 40px 16px"
                   }}
-                  whileTap={{ scale: 0.98, rotateX: 5 }}
                   transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
                   className="h-full w-full"
                 >
@@ -1090,14 +947,13 @@ const Portfolio = () => {
                         className="group-hover:translate-y-0 translate-y-4 transition-transform duration-700 ease-[0.19,1,0.22,1]"
                         style={{ transform: "translateZ(50px)" }}
                       >
-                        <p className="text-brand-orange font-bold text-xs uppercase tracking-[0.3em] mb-2">{project.category}</p>
+                        <p className="text-brand-orange font-bold text-xs uppercase tracking-[0.3em] mb-2">{activeCategory}</p>
                         <h4 className="text-3xl font-black text-white uppercase tracking-tighter mb-4">
                           <ScrambleText text={project.title} />
                         </h4>
                         <Magnetic>
                           <motion.div 
                             whileHover={{ scale: 1.1, backgroundColor: "#FF9F1C" }}
-                            whileTap={{ scale: 0.8, rotate: 180 }}
                             className="w-12 h-12 bg-white rounded-full flex items-center justify-center cursor-pointer transition-colors duration-300"
                           >
                             <Play size={20} className="text-black fill-current" />
@@ -1106,10 +962,6 @@ const Portfolio = () => {
                       </motion.div>
                     </div>
                   </div>
-                  
-                  {i === 5 && (
-                    <div className="absolute inset-0 bg-brand-orange mix-blend-multiply opacity-20 group-hover:opacity-0 transition-opacity" />
-                  )}
                 </motion.div>
               </TiltCard>
             ))}
@@ -1148,7 +1000,6 @@ const Gallery = () => {
                     boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
                     borderRadius: "40px 12px 40px 12px"
                   }}
-                  whileTap={{ scale: 0.95, rotate: -2 }}
                   className="relative rounded-2xl overflow-hidden group shadow-lg transition-all duration-500 cursor-pointer"
                 >
                   <motion.img 
@@ -1212,7 +1063,6 @@ const Services = () => {
                         rotate: 15,
                         scale: 1.1
                       }}
-                      whileTap={{ scale: 0.7, rotate: -15 }}
                       className="w-16 h-16 bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-brand-orange group-hover:text-white transition-all duration-300 cursor-pointer"
                     >
                       {service.icon}
@@ -1270,8 +1120,8 @@ const Experience = () => {
                       borderRadius: "12px",
                       borderColor: "transparent"
                     }}
-                    whileTap={{ scale: 0.85, y: 4 }}
-                    transition={{ type: "spring", stiffness: 500, damping: 12 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 15 }}
                     className="px-10 py-4 rounded-full border border-black text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500"
                   >
                     View Project
@@ -1303,13 +1153,9 @@ const Footer = () => {
             <ul className="flex flex-col gap-5 font-bold text-lg">
               {['Home', 'About', 'Portfolio', 'Gallery'].map((item) => (
                 <li key={item}>
-                  <motion.a 
-                    href={`#${item.toLowerCase()}`} 
-                    whileTap={{ scale: 0.95, x: 5 }}
-                    className="hover:text-brand-orange transition-all duration-300 inline-block"
-                  >
+                  <a href={`#${item.toLowerCase()}`} className="hover:text-brand-orange transition-all duration-300 inline-block">
                     <ScrambleText text={item} />
-                  </motion.a>
+                  </a>
                 </li>
               ))}
             </ul>
@@ -1326,13 +1172,9 @@ const Footer = () => {
               ].map((item) => (
                 <li key={item.name}>
                   <Magnetic>
-                    <motion.a 
-                      href="#" 
-                      whileTap={{ scale: 0.9, rotate: 10 }}
-                      className="flex items-center gap-3 hover:text-brand-orange transition-all duration-300 cursor-pointer"
-                    >
+                    <a href="#" className="flex items-center gap-3 hover:text-brand-orange transition-all duration-300 cursor-pointer">
                       {item.icon} <ScrambleText text={item.name} />
-                    </motion.a>
+                    </a>
                   </Magnetic>
                 </li>
               ))}
@@ -1389,7 +1231,6 @@ export default function App() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <ClickSpark />
           <CursorFollower />
           <BackgroundEffects />
           <Navbar />
@@ -1409,7 +1250,7 @@ export default function App() {
                 color: "#000",
                 boxShadow: "0 20px 40px -10px rgba(255, 159, 28, 0.5)"
               }}
-              whileTap={{ scale: 0.7, y: 15 }}
+              whileTap={{ scale: 0.9 }}
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="w-14 h-14 bg-black/80 backdrop-blur-xl text-white rounded-full flex items-center justify-center shadow-2xl border border-white/20 transition-colors duration-300"
             >

@@ -700,7 +700,7 @@ const About = () => {
   const isMobile = useIsMobile();
   const y = useTransform(scrollYProgress, [0, 1], [0, isMobile ? -30 : -100]);
   const rotate = useTransform(scrollYProgress, [0, 1], [0, isMobile ? 5 : 20]);
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1, isMobile ? 1.02 : 1.1, 1]);
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1.2, isMobile ? 1.22 : 1.3, 1.2]);
 
   return (
     <section id="about" className="bg-black text-white py-24 md:py-40 overflow-hidden relative">
@@ -727,11 +727,11 @@ const About = () => {
             <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl">
               <motion.img 
                 style={{ y, scale }}
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.25 }}
                 transition={{ duration: 0.8 }}
-                src="https://picsum.photos/seed/portrait/600/600" 
+                src="https://iili.io/qSxUT57.md.jpg" 
                 alt="Portrait" 
-                className="w-full h-full object-cover grayscale"
+                className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
                 loading="lazy"
               />
@@ -778,6 +778,120 @@ const About = () => {
   );
 };
 
+const Skills = () => {
+  const skillsList = [
+    "Visual Design",
+    "Branding & Identity",
+    "Content Creation",
+    "Instagram Growth Strategy",
+    "Trading Content Design",
+    "Viral Storytelling"
+  ];
+
+  const toolsList = "Canva, CapCut, VN Editor, Figma, Photoshop (Basic), Premiere Pro (Learning Stage)";
+
+  const progressBars = [
+    { name: "Canva", percentage: 90, icon: Palette },
+    { name: "Photoshop", percentage: 75, icon: PenTool },
+    { name: "Premiere Pro", percentage: 65, icon: Film },
+    { name: "CapCut/VN", percentage: 85, icon: Scissors },
+  ];
+
+  return (
+    <section id="skills" className="bg-gradient-to-b from-black via-[#121a15] to-black text-white py-24 md:py-40 overflow-hidden relative">
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <Reveal>
+          <h2 className="text-4xl md:text-8xl font-black uppercase mb-16 md:mb-24 tracking-tighter leading-none">
+            My <span className="text-[#00E676]">Skills</span>
+          </h2>
+        </Reveal>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
+          {/* Left Side */}
+          <div className="flex flex-col gap-10">
+            <Reveal delay={0.1}>
+              <ul className="space-y-4">
+                {skillsList.map((skill, i) => (
+                  <li key={i} className="flex items-center gap-4 text-xl md:text-2xl font-medium text-white/90">
+                    <div className="w-2 h-2 rounded-full bg-[#00E676]" />
+                    {skill}
+                  </li>
+                ))}
+              </ul>
+            </Reveal>
+
+            <Reveal delay={0.2}>
+              <div className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-2xl backdrop-blur-sm">
+                <h4 className="text-[#00E676] font-bold uppercase tracking-widest text-xs md:text-sm mb-4">Tools I'm familiar with or currently exploring:</h4>
+                <p className="text-white/70 leading-relaxed font-medium text-sm md:text-base">
+                  {toolsList}
+                </p>
+              </div>
+            </Reveal>
+
+            <Reveal delay={0.3}>
+              <blockquote className="border-l-4 border-[#00E676] pl-6 py-2">
+                <p className="text-lg md:text-xl font-medium italic text-white/80 leading-relaxed">
+                  "A true designer doesn't depend on tools — he creates impact with vision and execution!"
+                </p>
+              </blockquote>
+            </Reveal>
+
+            <Reveal delay={0.4}>
+              <motion.button 
+                whileHover={{ 
+                  scale: 1.05, 
+                  backgroundColor: "#00E676", 
+                  color: "#000", 
+                  boxShadow: "0 10px 30px -10px rgba(0, 230, 118, 0.5)",
+                  borderRadius: "12px",
+                  borderColor: "transparent"
+                }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                className="px-10 py-4 min-h-[44px] rounded-full border border-white/20 text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 w-fit mt-4"
+                onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                Hire Me
+              </motion.button>
+            </Reveal>
+          </div>
+
+          {/* Right Side */}
+          <div className="flex flex-col justify-center gap-12">
+            {progressBars.map((bar, i) => (
+              <Reveal key={i} delay={0.2 + i * 0.1}>
+                <div className="flex flex-col gap-4">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 md:p-4 bg-white/5 rounded-xl border border-white/10">
+                        <bar.icon size={24} className="text-[#00E676]" />
+                      </div>
+                      <span className="text-lg md:text-xl font-bold uppercase tracking-wider">{bar.name}</span>
+                    </div>
+                    <span className="text-[#00E676] font-black text-xl md:text-2xl">{bar.percentage}%</span>
+                  </div>
+                  <div className="h-3 md:h-4 w-full bg-white/10 rounded-full overflow-hidden">
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      whileInView={{ width: `${bar.percentage}%` }}
+                      viewport={{ once: true, margin: "-50px" }}
+                      transition={{ duration: 1.5, ease: "easeOut", delay: 0.3 + i * 0.1 }}
+                      className="h-full bg-[#00E676] rounded-full relative"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/30" />
+                    </motion.div>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const Portfolio = () => {
   const [activeCategory, setActiveCategory] = useState('social media posts');
   const { scrollYProgress } = useScroll();
@@ -785,84 +899,119 @@ const Portfolio = () => {
   const titleY = useTransform(scrollYProgress, [0, 1], [0, isMobile ? -40 : -150]);
   
   const categories = ['social media posts', 'ai posts', 'commercial work', 'thumbnails'];
+
+  const categoryThemes = {
+    'social media posts': {
+      gridClass: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+      accent: "bg-[#FF5722]",
+      bg: "bg-[#1c1412]",
+      cardStyle: "aspect-[2/3]",
+      label: "Social Media"
+    },
+    'ai posts': {
+      gridClass: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+      accent: "bg-[#00E5FF]",
+      bg: "bg-[#11161a]",
+      cardStyle: "aspect-[2/3]",
+      label: "AI Cinematic"
+    },
+    'commercial work': {
+      gridClass: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+      accent: "bg-[#00E676]",
+      bg: "bg-[#121a15]",
+      cardStyle: "aspect-[2/3]",
+      label: "Commercial"
+    },
+    'thumbnails': {
+      gridClass: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+      accent: "bg-[#D500F9]",
+      bg: "bg-[#1a1218]",
+      cardStyle: "aspect-video",
+      label: "Thumbnails"
+    }
+  };
+
+  const currentTheme = categoryThemes[activeCategory as keyof typeof categoryThemes] || categoryThemes['social media posts'];
   
   const projects = {
     'social media posts': [
-      { title: 'Travel Film', size: 'large', img: 'https://iili.io/qk4Jd5x.md.png', link: 'https://vt.tiktok.com/ZSusHsDwT/' },
+      { title: 'Travel Film', size: 'small', img: 'https://iili.io/qk4Jd5x.md.png', link: 'https://vt.tiktok.com/ZSusHsDwT/' },
       { title: 'Urban Flow', size: 'small', img: 'https://iili.io/qkPkOKX.md.png' },
       { title: 'Desert Vibes', size: 'small', img: 'https://iili.io/qk6kAml.md.png', link: 'https://www.facebook.com/share/p/183v5bhf9v/?mibextid=wwXIfr' },
-      { title: 'Ocean Waves', size: 'large', img: 'https://iili.io/qk6bL74.md.jpg', link: 'https://vt.tiktok.com/ZSusHgeBv/' },
+      { title: 'Ocean Waves', size: 'small', img: 'https://iili.io/qk6bL74.md.jpg', link: 'https://vt.tiktok.com/ZSusHgeBv/' },
       { title: 'City Lights', size: 'small', img: 'https://iili.io/qkPJKsS.md.png', link: 'https://www.instagram.com/p/DUhspi5E2S5/?igsh=MWR3MnRtcHFqM3hy' },
       { title: 'Skyline View', size: 'small', img: 'https://iili.io/qkiu2dG.md.png', link: 'https://vt.tiktok.com/ZSusHpk97/' },
     ],
     'ai posts': [
-      { title: 'Wedding Edit', size: 'small', img: 'https://picsum.photos/seed/wedding/400/600' },
-      { title: 'Brand Story', size: 'medium', img: 'https://picsum.photos/seed/brand/600/400' },
-      { title: 'Action Reel', size: 'small', img: 'https://picsum.photos/seed/action/400/600' },
-      { title: 'Tech Future', size: 'large', img: 'https://picsum.photos/seed/tech/800/600' },
-      { title: 'Abstract Art', size: 'small', img: 'https://picsum.photos/seed/abstract/400/600' },
-      { title: 'Cyberpunk', size: 'medium', img: 'https://picsum.photos/seed/cyberpunk/600/400' },
-      { title: 'Neon Dreams', size: 'small', img: 'https://picsum.photos/seed/neon/400/600' },
-      { title: 'Space Travel', size: 'large', img: 'https://picsum.photos/seed/space/800/600' },
-      { title: 'Robot Mind', size: 'small', img: 'https://picsum.photos/seed/robot/400/600' },
-      { title: 'Virtual World', size: 'medium', img: 'https://picsum.photos/seed/virtual/600/400' },
-      { title: 'Digital Avatar', size: 'small', img: 'https://picsum.photos/seed/avatar/400/600' },
+      { title: 'Wedding Edit', size: 'small', img: 'https://iili.io/qSIj2Dv.md.png' },
+      { title: 'Brand Story', size: 'small', img: 'https://iili.io/qSIAQrN.md.png' },
+      { title: 'Action Reel', size: 'small', img: 'https://iili.io/qSAPfkb.md.png' },
+      { title: 'Tech Future', size: 'small', img: 'https://iili.io/qSAL5ve.md.png' },
+      { title: 'Abstract Art', size: 'small', img: 'https://iili.io/qSRnODG.md.png' },
+      { title: 'Cyberpunk', size: 'small', img: 'https://iili.io/qS072KN.md.png' },
     ],
     'commercial work': [
       { title: 'Music Video', size: 'small', img: 'https://picsum.photos/seed/music/400/600' },
-      { title: 'Fashion Shoot', size: 'medium', img: 'https://picsum.photos/seed/fashion/600/400' },
+      { title: 'Fashion Shoot', size: 'small', img: 'https://picsum.photos/seed/fashion/600/400' },
       { title: 'Product Ad', size: 'small', img: 'https://picsum.photos/seed/product/400/600' },
-      { title: 'Corporate Event', size: 'large', img: 'https://picsum.photos/seed/corporate/800/600' },
+      { title: 'Corporate Event', size: 'small', img: 'https://picsum.photos/seed/corporate/800/600' },
       { title: 'Food Promo', size: 'small', img: 'https://picsum.photos/seed/food/400/600' },
-      { title: 'Car Commercial', size: 'medium', img: 'https://picsum.photos/seed/car/600/400' },
-      { title: 'Real Estate', size: 'small', img: 'https://picsum.photos/seed/realestate/400/600' },
-      { title: 'App Promo', size: 'large', img: 'https://picsum.photos/seed/app/800/600' },
-      { title: 'Fitness Brand', size: 'small', img: 'https://picsum.photos/seed/fitness/400/600' },
-      { title: 'Tech Startup', size: 'medium', img: 'https://picsum.photos/seed/startup/600/400' },
-      { title: 'Travel Agency', size: 'large', img: 'https://picsum.photos/seed/travel/800/600' },
+      { title: 'Car Commercial', size: 'small', img: 'https://picsum.photos/seed/car/600/400' },
     ],
     'thumbnails': [
-      { title: 'Studio Session', size: 'medium', img: 'https://picsum.photos/seed/studio/600/400' },
-      { title: 'Portrait Study', size: 'small', img: 'https://picsum.photos/seed/portrait/400/600' },
-      { title: 'Landscape View', size: 'large', img: 'https://picsum.photos/seed/landscape/800/600' },
-      { title: 'Night City', size: 'small', img: 'https://picsum.photos/seed/night/400/600' },
-      { title: 'Morning Light', size: 'medium', img: 'https://picsum.photos/seed/morning/600/400' },
-      { title: 'Vlog Cover', size: 'small', img: 'https://picsum.photos/seed/vlog/400/600' },
-      { title: 'Podcast Art', size: 'medium', img: 'https://picsum.photos/seed/podcast/600/400' },
-      { title: 'Review Video', size: 'small', img: 'https://picsum.photos/seed/review/400/600' },
-      { title: 'Tutorial Thumb', size: 'large', img: 'https://picsum.photos/seed/tutorial/800/600' },
-      { title: 'Gaming Stream', size: 'small', img: 'https://picsum.photos/seed/gaming/400/600' },
-      { title: 'Reaction Video', size: 'medium', img: 'https://picsum.photos/seed/reaction/600/400' },
+      { title: 'Studio Session', size: 'small', img: 'https://picsum.photos/seed/studio/800/450' },
+      { title: 'Portrait Study', size: 'small', img: 'https://picsum.photos/seed/portrait/800/450' },
+      { title: 'Landscape View', size: 'small', img: 'https://picsum.photos/seed/landscape/800/450' },
+      { title: 'Night City', size: 'small', img: 'https://picsum.photos/seed/night/800/450' },
+      { title: 'Morning Light', size: 'small', img: 'https://picsum.photos/seed/morning/800/450' },
+      { title: 'Vlog Cover', size: 'small', img: 'https://picsum.photos/seed/vlog/800/450' },
     ]
   };
 
   const activeProjects = projects[activeCategory as keyof typeof projects];
 
   return (
-    <section id="portfolio" className="py-24 md:py-40 px-6 bg-brand-bg relative overflow-hidden">
-      {/* Depth Layer */}
+    <section id="portfolio" className={`py-24 md:py-40 px-6 transition-colors duration-1000 ease-in-out relative overflow-hidden ${currentTheme.bg}`}>
+      {/* Animated Moving Substances */}
       <motion.div 
-        style={{ y: useTransform(scrollYProgress, [0, 1], [isMobile ? -30 : -100, isMobile ? 30 : 100]) }}
-        className="absolute top-1/2 -left-32 w-[30rem] h-[30rem] border border-black/5 bg-black/5 backdrop-blur-[2px] rounded-full z-0 pointer-events-none" 
+        animate={{
+          scale: [1, 1.2, 1],
+          rotate: [0, 90, 0],
+          borderRadius: ["20%", "50%", "20%"]
+        }}
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+        className={`absolute top-1/2 -left-32 w-[30rem] h-[30rem] blur-[120px] z-0 pointer-events-none opacity-30 transition-colors duration-1000 ease-in-out ${currentTheme.accent}`} 
+      />
+      <motion.div 
+        animate={{
+          scale: [1.2, 1, 1.2],
+          rotate: [0, -90, 0],
+          borderRadius: ["50%", "20%", "50%"]
+        }}
+        transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+        className={`absolute bottom-0 -right-32 w-[30rem] h-[30rem] blur-[120px] z-0 pointer-events-none opacity-20 transition-colors duration-1000 ease-in-out ${currentTheme.accent}`} 
       />
 
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="relative mb-16 md:mb-24">
           <motion.h2 
+            key={activeCategory + "-title"}
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 0.1, x: 0 }}
             style={{ y: titleY }}
-            className="text-[15vw] md:text-[12vw] font-black uppercase tracking-tighter opacity-10 absolute -top-12 md:-top-16 left-0 pointer-events-none"
+            className="text-[15vw] md:text-[12vw] font-black uppercase tracking-tighter absolute -top-12 md:-top-16 left-0 pointer-events-none text-white"
           >
-            portfolio
+            {activeCategory}
           </motion.h2>
           <div className="flex flex-col md:flex-row md:items-end justify-between relative z-10 gap-6 md:gap-8">
             <div>
-              <p className="text-brand-orange font-bold uppercase tracking-[0.3em] text-xs mb-3">Selected Works</p>
-              <h3 className="text-5xl md:text-8xl font-black uppercase tracking-tighter">my expertise </h3>
+              <p className={`font-bold uppercase tracking-[0.3em] text-xs mb-3 transition-colors duration-500 ${activeCategory === 'all' ? 'text-brand-orange' : 'text-white/60'}`}>Selected Works</p>
+              <h3 className="text-5xl md:text-8xl font-black uppercase tracking-tighter text-white">my expertise </h3>
             </div>
             
             {/* Category Tabs */}
             <Reveal delay={0.2}>
-              <div className="flex flex-wrap justify-center gap-2 p-2 md:p-1 bg-white/40 backdrop-blur-xl rounded-2xl md:rounded-full border border-white/20 shadow-xl shadow-black/5 relative">
+              <div className="flex flex-wrap justify-center gap-2 p-2 md:p-1 bg-white/5 backdrop-blur-xl rounded-2xl md:rounded-full border border-white/10 shadow-xl shadow-black/20 relative">
                 {categories.map((cat) => (
                   <Magnetic key={cat}>
                     <button
@@ -870,18 +1019,18 @@ const Portfolio = () => {
                       className={`relative px-4 md:px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors duration-300 z-10 ${
                         activeCategory === cat 
                           ? 'text-white' 
-                          : 'text-black/40 hover:text-black'
+                          : 'text-white/40 hover:text-white'
                       }`}
                     >
                       {activeCategory === cat && (
                         <motion.div
                           layoutId="active-pill"
-                          className="absolute inset-0 bg-black rounded-full shadow-lg shadow-black/20"
+                          className={`absolute inset-0 rounded-full shadow-lg shadow-black/20 ${categoryThemes[cat as keyof typeof categoryThemes]?.accent}`}
                           transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                         />
                       )}
                       <span className="relative z-10">
-                        <ScrambleText text={cat} />
+                        <ScrambleText text={categoryThemes[cat as keyof typeof categoryThemes]?.label || cat} />
                       </span>
                     </button>
                   </Magnetic>
@@ -889,46 +1038,53 @@ const Portfolio = () => {
               </div>
             </Reveal>
           </div>
+          
+          {/* Subtle Divider */}
+          <motion.div 
+            initial={{ opacity: 0, width: 0 }}
+            animate={{ opacity: 1, width: "100%" }}
+            className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mt-12 md:mt-16"
+          />
         </div>
 
         <motion.div 
           layout
-          className="columns-1 md:columns-2 lg:columns-3 gap-8"
+          className={`grid gap-6 md:gap-8 ${currentTheme.gridClass}`}
         >
           <AnimatePresence mode="popLayout">
             {activeProjects.map((project, i) => (
               <TiltCard 
-                key={project.title}
-                className="relative rounded-2xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-700 break-inside-avoid mb-8 w-full inline-block"
+                key={`${activeCategory}-${project.title}`}
+                className={`relative rounded-2xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-700 ${currentTheme.cardStyle}`}
               >
                 <motion.div 
                   layout
                   onClick={() => project.link && window.open(project.link, '_blank')}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
+                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                  transition={{ duration: 0.5, delay: i * 0.05 }}
                   whileHover={{ 
                     y: -10,
-                    borderRadius: "40px 16px 40px 16px"
+                    borderRadius: activeCategory === 'ai posts' ? "0px" : "40px 16px 40px 16px"
                   }}
-                  whileTap={{ scale: 0.97, borderRadius: "40px 16px 40px 16px" }}
-                  transition={{ duration: 0.5, type: "spring", bounce: 0.4 }}
-                  className="w-full"
+                  whileTap={{ scale: 0.97 }}
+                  className="w-full h-full"
                 >
-                  <div className="overflow-hidden">
+                  <div className="overflow-hidden h-full">
                     <motion.img 
-                      whileHover={{ scale: 1.05 }}
+                      whileHover={{ scale: 1.1 }}
                       transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
                       src={project.img} 
                       alt={project.title} 
-                      className="w-full h-auto object-cover transition-all duration-1000 ease-in-out grayscale-[0.3] contrast-[1.1] brightness-[0.85] group-hover:grayscale-0 group-hover:contrast-100 group-hover:brightness-100"
+                      className="w-full h-full object-cover transition-all duration-1000 ease-in-out grayscale-[0.3] contrast-[1.1] brightness-[0.85] group-hover:grayscale-0 group-hover:contrast-100 group-hover:brightness-100"
                       referrerPolicy="no-referrer"
                       loading="lazy"
                       decoding="async"
                     />
                   </div>
                   
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-700 flex flex-col justify-end p-6 md:p-10">
+                  <div className={`absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-700 flex flex-col justify-end p-6 md:p-10`}>
                     <div className="overflow-hidden">
                       <motion.div
                         initial={{ y: 20, opacity: 0 }}
@@ -938,7 +1094,7 @@ const Portfolio = () => {
                         className="translate-y-0 md:translate-y-4 md:group-hover:translate-y-0 transition-transform duration-700 ease-[0.19,1,0.22,1]"
                         style={{ transform: "translateZ(50px)" }}
                       >
-                        <p className="text-brand-orange font-bold text-xs uppercase tracking-[0.3em] mb-2">{activeCategory}</p>
+                        <p className={`font-bold text-[11px] uppercase tracking-[0.3em] mb-2 text-white/90`}>{currentTheme.label}</p>
                         <h4 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter mb-4">
                           <ScrambleText text={project.title} />
                         </h4>
@@ -982,7 +1138,7 @@ const Gallery = () => {
           <p className="text-white/50 max-w-xl mx-auto text-lg">A collection of moments from the field, showcasing the gear, the process, and the passion.</p>
         </Reveal>
 
-        <div className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {images.map((img, i) => (
             <Reveal key={i} delay={i * 0.1}>
               <TiltCard>
@@ -1069,65 +1225,6 @@ const Services = () => {
               </Reveal>
             ))}
           </div>
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const Experience = () => {
-  const items = [
-    { title: 'Cinematic Visions Unveiled', location: 'Madrid Gallery, Spain', date: '21 Nov 2023' },
-    { title: 'Frames in Motion', location: 'Manchester Museum, UK', date: '20 Nov 2023' },
-    { title: 'Journey Through Time', location: 'Milan Gallery, Italy', date: '19 Nov 2023' },
-    { title: 'Experimental Narratives', location: 'Paris Museum, France', date: '18 Nov 2023' },
-  ];
-
-  return (
-    <section className="py-24 md:py-40 px-6 bg-brand-bg border-t border-black/5">
-      <div className="max-w-7xl mx-auto">
-        <Reveal>
-          <h2 className="text-[12vw] md:text-[10vw] font-black uppercase tracking-tighter opacity-5 mb-16 md:mb-24 leading-none">exhibitions</h2>
-        </Reveal>
-        
-        <div className="flex flex-col">
-          {items.map((item, i) => (
-            <Reveal key={i} delay={i * 0.1}>
-              <motion.div 
-                whileTap={{ scale: 0.98, backgroundColor: "rgba(0,0,0,0.05)" }}
-                className="group flex flex-col md:flex-row md:items-center justify-between py-12 border-b border-black/10 hover:bg-black/5 px-6 transition-all duration-700 rounded-xl cursor-pointer"
-              >
-                <div className="flex items-center gap-10 mb-6 md:mb-0">
-                  <span className="text-xs font-bold text-black/30 tracking-widest">0{i + 1}</span>
-                  <h3 className="text-2xl md:text-5xl font-black uppercase tracking-tighter group-hover:text-brand-orange transition-colors duration-700">
-                    {item.title}
-                  </h3>
-                </div>
-                
-                <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-16">
-                  <div className="text-left">
-                    <p className="text-sm font-bold uppercase tracking-[0.2em] mb-1">{item.location}</p>
-                    <p className="text-xs text-black/40 uppercase tracking-[0.2em]">{item.date}</p>
-                  </div>
-                  <motion.button 
-                    whileHover={{ 
-                      scale: 1.05, 
-                      backgroundColor: "#FF9F1C", 
-                      color: "#000", 
-                      boxShadow: "0 10px 30px -10px rgba(255, 159, 28, 0.5)",
-                      borderRadius: "12px",
-                      borderColor: "transparent"
-                    }}
-                    whileTap={{ scale: 0.97 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                    className="px-10 py-4 min-h-[44px] rounded-full border border-black text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500"
-                  >
-                    View Project
-                  </motion.button>
-                </div>
-              </motion.div>
-            </Reveal>
-          ))}
         </div>
       </div>
     </section>
@@ -1239,10 +1336,10 @@ export default function App() {
           <Navbar />
           <Hero />
           <About />
+          <Skills />
           <Portfolio />
           <Gallery />
           <Services />
-          <Experience />
           <Footer />
           
           <div className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-50">

@@ -229,15 +229,15 @@ const ShutterTransition = ({ onComplete }: { onComplete: () => void, key?: strin
     <motion.div
       initial={{ opacity: 1 }}
       animate={{ opacity: 0 }}
-      transition={{ duration: 0.5, delay: 0.6, ease: [0.19, 1, 0.22, 1] }}
+      transition={{ duration: 1.2, delay: 1.6, ease: [0.19, 1, 0.22, 1] }}
       onAnimationComplete={onComplete}
       className="fixed inset-0 z-[95] bg-brand-bg flex flex-col items-center justify-center pointer-events-none"
     >
       <motion.div
         key="aadarsh-sah"
-        initial={{ opacity: 0, y: 30, scale: 0.9 }}
+        initial={{ opacity: 0, y: 30, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
+        transition={{ duration: 1, ease: [0.19, 1, 0.22, 1] }}
         className="flex flex-col items-center"
       >
         <h2 className="text-4xl md:text-7xl font-black uppercase tracking-tighter text-black text-center">
@@ -246,16 +246,16 @@ const ShutterTransition = ({ onComplete }: { onComplete: () => void, key?: strin
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: "100%" }}
-          transition={{ delay: 0.5, duration: 0.8 }}
+          transition={{ delay: 0.8, duration: 1.2 }}
           className="h-[1px] bg-black/10 mt-4 max-w-[200px]"
         />
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
+          transition={{ delay: 1.2, duration: 0.8 }}
           className="mt-4 text-[10px] uppercase tracking-[0.8em] font-black text-black/30"
         >
-          Visual Artist
+          Virtual Artist
         </motion.p>
       </motion.div>
     </motion.div>
@@ -263,15 +263,15 @@ const ShutterTransition = ({ onComplete }: { onComplete: () => void, key?: strin
 };
 
 const Preloader = ({ onComplete }: { onComplete: () => void, key?: string }) => {
-  const words = ["STORYTELLING", "CINEMATOGRAPHY", "EDITING", "VISION"];
+  const words = ["VISION", "EXECUTION", "IMPACT"];
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
     if (index < words.length - 1) {
-      const timeout = setTimeout(() => setIndex(index + 1), 400);
+      const timeout = setTimeout(() => setIndex(index + 1), 1400);
       return () => clearTimeout(timeout);
     } else {
-      const timeout = setTimeout(onComplete, 400);
+      const timeout = setTimeout(onComplete, 1400);
       return () => clearTimeout(timeout);
     }
   }, [index, onComplete, words.length]);
@@ -280,7 +280,7 @@ const Preloader = ({ onComplete }: { onComplete: () => void, key?: string }) => 
     <motion.div 
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.8 }}
       className="fixed inset-0 z-[100] bg-black flex items-center justify-center overflow-hidden"
     >
       <div className="relative flex items-center justify-center">
@@ -294,7 +294,7 @@ const Preloader = ({ onComplete }: { onComplete: () => void, key?: string }) => 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.8 }}
               className="text-4xl md:text-8xl font-black text-white tracking-tighter"
             >
               {words[index]}
@@ -308,7 +308,7 @@ const Preloader = ({ onComplete }: { onComplete: () => void, key?: string }) => 
         <motion.div 
           initial={{ width: 0 }}
           animate={{ width: `${((index + 1) / words.length) * 100}%` }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 1.4, ease: "easeInOut" }}
           className="h-full bg-brand-orange"
         />
       </div>
@@ -573,7 +573,7 @@ const Hero = () => {
           <motion.div variants={itemVariants} className="max-w-md">
             <p className="text-lg font-medium mb-2">Aadarsh Sah — Video Editor & Graphic Designer</p>
             <p className="text-black/60 mb-8 leading-relaxed">
-              Welcome to a visual journey that transcends time and space. Discover the artistry of moments captured in motion.
+              I create high-impact videos that grow your audience and brand.
             </p>
 
             <div className="flex flex-wrap gap-4 mb-12">

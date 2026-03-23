@@ -1119,13 +1119,14 @@ const VideoPlayerModal = ({ video, onClose }: { video: { url: string, title: str
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const isVertical = video.category === 'Reel' || video.category === 'Shorts';
   const isVimeo = video.url.includes('vimeo.com');
 
   const getVimeoEmbedUrl = (url: string) => {
     const match = url.match(/vimeo\.com\/(\d+)/);
-    return match ? `https://player.vimeo.com/video/${match[1]}?autoplay=1&muted=0` : url;
+    return match ? `https://player.vimeo.com/video/${match[1]}?autoplay=1&muted=0&dnt=1&quality=auto` : url;
   };
 
   const togglePlay = () => {
@@ -1202,12 +1203,25 @@ const VideoPlayerModal = ({ video, onClose }: { video: { url: string, title: str
         </button>
 
         <div className={`relative group ${isVertical ? 'aspect-[9/16]' : 'aspect-video'} bg-black`}>
+          {isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center z-10 bg-black/20 backdrop-blur-sm">
+              <motion.div 
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                className="w-12 h-12 border-4 border-brand-orange border-t-transparent rounded-full"
+              />
+            </div>
+          )}
+
           {isVimeo ? (
             <iframe
               src={getVimeoEmbedUrl(video.url)}
               className="w-full h-full border-0"
               allow="autoplay; fullscreen; picture-in-picture"
               allowFullScreen
+              loading="eager"
+              title={video.title}
+              onLoad={() => setIsLoading(false)}
             />
           ) : (
             <>
@@ -1216,10 +1230,18 @@ const VideoPlayerModal = ({ video, onClose }: { video: { url: string, title: str
                 src={video.url}
                 className={`w-full h-full ${isVertical ? 'object-cover' : ''}`}
                 onTimeUpdate={handleProgress}
-                onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
+                onLoadedMetadata={() => {
+                  setDuration(videoRef.current?.duration || 0);
+                  setIsLoading(false);
+                }}
+                onCanPlay={() => setIsLoading(false)}
+                onWaiting={() => setIsLoading(true)}
                 onPlay={() => setIsPlaying(true)}
                 onPause={() => setIsPlaying(false)}
                 onClick={togglePlay}
+                preload="auto"
+                playsInline
+                autoPlay
               />
 
               {/* Custom Controls */}

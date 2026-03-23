@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform, useMotionValue, animate, useInView, useSpring } from 'motion/react';
+import { motion, AnimatePresence, useScroll, useTransform, useMotionValue, animate, useInView, useSpring, useReducedMotion } from 'motion/react';
 import { 
   Camera, 
   Video, 
@@ -23,6 +23,7 @@ import {
   Menu, 
   X 
 } from 'lucide-react';
+import ScriptsPage from './components/ScriptsPage';
 
 // --- Hooks ---
 const useIsMobile = () => {
@@ -109,9 +110,10 @@ const CursorFollower = () => {
 const Magnetic = ({ children, className }: { children: React.ReactNode, className?: string, key?: React.Key }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const prefersReducedMotion = useReducedMotion();
 
   const handleMouse = (e: React.MouseEvent) => {
-    if (!ref.current) return;
+    if (!ref.current || prefersReducedMotion) return;
     const { clientX, clientY } = e;
     const { height, width, left, top } = ref.current.getBoundingClientRect();
     const middleX = clientX - (left + width / 2);
@@ -150,6 +152,7 @@ const ScrambleText = ({ text }: { text: string }) => {
 const TiltCard = ({ children, className }: { children: React.ReactNode, className?: string, key?: React.Key }) => {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
+  const prefersReducedMotion = useReducedMotion();
 
   const mouseXSpring = useSpring(x);
   const mouseYSpring = useSpring(y);
@@ -158,7 +161,7 @@ const TiltCard = ({ children, className }: { children: React.ReactNode, classNam
   const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-17.5deg", "17.5deg"]);
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (window.matchMedia("(hover: none)").matches) return;
+    if (window.matchMedia("(hover: none)").matches || prefersReducedMotion) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const width = rect.width;
     const height = rect.height;
@@ -207,16 +210,18 @@ const Counter = ({ value, duration = 2, suffix = "" }: { value: number, duration
   );
 };
 
-const Reveal = ({ children, delay = 0, width = "auto", className = "" }: { children: React.ReactNode, delay?: number, width?: "auto" | "100%", className?: string, key?: React.Key }) => {
+const Reveal = ({ children, delay = 0, width = "auto", className = "", fullHeight = false }: { children: React.ReactNode, delay?: number, width?: "auto" | "100%", className?: string, key?: React.Key, fullHeight?: boolean }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const prefersReducedMotion = useReducedMotion();
 
   return (
-    <div ref={ref} className={className} style={{ position: "relative", width, overflow: "hidden" }}>
+    <div ref={ref} className={className} style={{ position: "relative", width, overflow: fullHeight ? "visible" : "hidden", height: fullHeight ? "100%" : "auto" }}>
       <motion.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
-        transition={{ duration: 0.6, delay, ease: [0.19, 1, 0.22, 1] }}
+        initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 15 }}
+        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: prefersReducedMotion ? 0 : 15 }}
+        transition={{ duration: prefersReducedMotion ? 0.3 : 0.6, delay: prefersReducedMotion ? 0 : delay, ease: [0.19, 1, 0.22, 1] }}
+        className={fullHeight ? "h-full" : ""}
       >
         {children}
       </motion.div>
@@ -229,7 +234,7 @@ const ShutterTransition = ({ onComplete }: { onComplete: () => void, key?: strin
     <motion.div
       initial={{ opacity: 1 }}
       animate={{ opacity: 0 }}
-      transition={{ duration: 1.2, delay: 1.6, ease: [0.19, 1, 0.22, 1] }}
+      transition={{ duration: 1.5, delay: 2.5, ease: [0.19, 1, 0.22, 1] }}
       onAnimationComplete={onComplete}
       className="fixed inset-0 z-[95] bg-brand-bg flex flex-col items-center justify-center pointer-events-none"
     >
@@ -237,7 +242,7 @@ const ShutterTransition = ({ onComplete }: { onComplete: () => void, key?: strin
         key="aadarsh-sah"
         initial={{ opacity: 0, y: 30, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 1, ease: [0.19, 1, 0.22, 1] }}
+        transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
         className="flex flex-col items-center"
       >
         <h2 className="text-4xl md:text-7xl font-black uppercase tracking-tighter text-black text-center">
@@ -246,13 +251,13 @@ const ShutterTransition = ({ onComplete }: { onComplete: () => void, key?: strin
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: "100%" }}
-          transition={{ delay: 0.8, duration: 1.2 }}
+          transition={{ delay: 1.0, duration: 1.5 }}
           className="h-[1px] bg-black/10 mt-4 max-w-[200px]"
         />
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.2, duration: 0.8 }}
+          transition={{ delay: 1.5, duration: 1.0 }}
           className="mt-4 text-[10px] uppercase tracking-[0.8em] font-black text-black/30"
         >
           Virtual Artist
@@ -280,7 +285,7 @@ const Preloader = ({ onComplete }: { onComplete: () => void, key?: string }) => 
     <motion.div 
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.8 }}
+      transition={{ duration: 1.0 }}
       className="fixed inset-0 z-[100] bg-black flex items-center justify-center overflow-hidden"
     >
       <div className="relative flex items-center justify-center">
@@ -294,7 +299,7 @@ const Preloader = ({ onComplete }: { onComplete: () => void, key?: string }) => 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.8 }}
+              transition={{ duration: 0.5 }}
               className="text-4xl md:text-8xl font-black text-white tracking-tighter"
             >
               {words[index]}
@@ -308,7 +313,7 @@ const Preloader = ({ onComplete }: { onComplete: () => void, key?: string }) => 
         <motion.div 
           initial={{ width: 0 }}
           animate={{ width: `${((index + 1) / words.length) * 100}%` }}
-          transition={{ duration: 1.4, ease: "easeInOut" }}
+          transition={{ duration: 0.8, ease: "easeInOut" }}
           className="h-full bg-brand-orange"
         />
       </div>
@@ -409,7 +414,7 @@ const Navbar = () => {
             <a 
               key={link.name} 
               href={link.href} 
-              className="text-sm font-black uppercase tracking-widest hover:text-brand-orange transition-colors"
+              className="text-sm font-black uppercase tracking-widest hover:text-brand-orange transition-colors py-2"
             >
               <ScrambleText text={link.name} />
             </a>
@@ -459,7 +464,7 @@ const Navbar = () => {
                 transition={{ delay: 0.1 + i * 0.1, duration: 0.5, ease: "easeOut" }}
                 key={link.name} 
                 href={link.href} 
-                className="text-4xl font-black uppercase tracking-tighter hover:text-brand-orange transition-colors"
+                className="text-4xl font-black uppercase tracking-tighter hover:text-brand-orange transition-colors py-4 block"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 {link.name}
@@ -486,9 +491,11 @@ const Navbar = () => {
 const Hero = () => {
   const { scrollY } = useScroll();
   const isMobile = useIsMobile();
-  const y1 = useTransform(scrollY, [0, 500], [0, isMobile ? 50 : 200]);
-  const y2 = useTransform(scrollY, [0, 500], [0, isMobile ? -30 : -100]);
-  const rotate = useTransform(scrollY, [0, 500], [0, isMobile ? 5 : 15]);
+  const prefersReducedMotion = useReducedMotion();
+  
+  const y1 = useTransform(scrollY, [0, 500], [0, isMobile || prefersReducedMotion ? 0 : 200]);
+  const y2 = useTransform(scrollY, [0, 500], [0, isMobile || prefersReducedMotion ? 0 : -100]);
+  const rotate = useTransform(scrollY, [0, 500], [0, isMobile || prefersReducedMotion ? 0 : 15]);
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
 
   const containerVariants = {
@@ -496,28 +503,28 @@ const Hero = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.5
+        staggerChildren: prefersReducedMotion ? 0 : 0.2,
+        delayChildren: prefersReducedMotion ? 0 : 0.5
       }
     }
   };
 
   const itemVariants = {
-    hidden: { y: 50, opacity: 0 },
+    hidden: { y: prefersReducedMotion ? 0 : 50, opacity: 0 },
     visible: { 
       y: 0, 
       opacity: 1, 
-      transition: { duration: 0.8, ease: [0.19, 1, 0.22, 1] }
+      transition: { duration: prefersReducedMotion ? 0.3 : 0.8, ease: [0.19, 1, 0.22, 1] }
     }
   };
 
   const imageVariants = {
-    hidden: { scale: 1.1, opacity: 0, x: 50 },
+    hidden: { scale: prefersReducedMotion ? 1 : 1.1, opacity: 0, x: prefersReducedMotion ? 0 : 50 },
     visible: { 
       scale: 1, 
       opacity: 1, 
       x: 0,
-      transition: { duration: 1, ease: [0.19, 1, 0.22, 1] }
+      transition: { duration: prefersReducedMotion ? 0.3 : 1, ease: [0.19, 1, 0.22, 1] }
     }
   };
 
@@ -544,7 +551,7 @@ const Hero = () => {
               <motion.span 
                 initial={{ y: "100%", opacity: 0, letterSpacing: "0.1em" }}
                 animate={{ y: 0, opacity: 1, letterSpacing: "-0.02em" }}
-                transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
+                transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
                 className="block text-black" 
               >
                 AADARSH
@@ -554,7 +561,7 @@ const Hero = () => {
               <motion.span 
                 initial={{ y: "100%", opacity: 0, letterSpacing: "0.1em" }}
                 animate={{ y: 0, opacity: 1, letterSpacing: "-0.02em" }}
-                transition={{ duration: 0.8, delay: 0.1, ease: [0.19, 1, 0.22, 1] }}
+                transition={{ duration: 0.5, delay: 0.1, ease: [0.19, 1, 0.22, 1] }}
                 className="block text-brand-orange" 
               >
                 SAH
@@ -565,7 +572,7 @@ const Hero = () => {
             <motion.div 
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
-              transition={{ duration: 1, delay: 0.6, ease: [0.19, 1, 0.22, 1] }}
+              transition={{ duration: 0.6, delay: 0.6, ease: [0.19, 1, 0.22, 1] }}
               className="absolute -left-6 top-0 w-1 h-full bg-black/5 origin-top hidden md:block"
             />
           </motion.h1>
@@ -610,7 +617,7 @@ const Hero = () => {
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.8, delay: 0.4, ease: [0.19, 1, 0.22, 1] }}
+                  transition={{ duration: 0.5, delay: 0.4, ease: [0.19, 1, 0.22, 1] }}
                 >
                   <p className="text-5xl font-black tracking-tighter text-brand-orange">
                     <Counter value={100} suffix="k+" />
@@ -622,7 +629,7 @@ const Hero = () => {
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.8, delay: 0.5, ease: [0.19, 1, 0.22, 1] }}
+                  transition={{ duration: 0.5, delay: 0.5, ease: [0.19, 1, 0.22, 1] }}
                 >
                   <p className="text-5xl font-black tracking-tighter text-black">
                     <Counter value={45} suffix="+" />
@@ -652,7 +659,7 @@ const Hero = () => {
             <img 
               src="https://iili.io/qkR5xig.md.jpg" 
               alt="Aadarsh Sah" 
-              className="w-full h-full object-cover transition-all duration-1000 ease-in-out group-hover:scale-105 brightness-95 group-hover:brightness-100 sepia-[.05] group-hover:sepia-0"
+              className="w-full h-full object-cover transition-all duration-500 ease-in-out group-hover:scale-105 brightness-95 group-hover:brightness-100 sepia-[.05] group-hover:sepia-0"
               referrerPolicy="no-referrer"
               fetchPriority="high"
               decoding="async"
@@ -698,15 +705,16 @@ const Hero = () => {
 const About = () => {
   const { scrollYProgress } = useScroll();
   const isMobile = useIsMobile();
-  const y = useTransform(scrollYProgress, [0, 1], [0, isMobile ? -30 : -100]);
-  const rotate = useTransform(scrollYProgress, [0, 1], [0, isMobile ? 5 : 20]);
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1.2, isMobile ? 1.22 : 1.3, 1.2]);
+  const prefersReducedMotion = useReducedMotion();
+  const y = useTransform(scrollYProgress, [0, 1], [0, isMobile || prefersReducedMotion ? 0 : -100]);
+  const rotate = useTransform(scrollYProgress, [0, 1], [0, isMobile || prefersReducedMotion ? 0 : 20]);
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1.2, isMobile || prefersReducedMotion ? 1.2 : 1.3, 1.2]);
 
   return (
     <section id="about" className="bg-black text-white py-24 md:py-40 overflow-hidden relative">
       {/* Floating Depth Elements */}
       <motion.div 
-        style={{ y: useTransform(scrollYProgress, [0, 1], [isMobile ? 30 : 100, isMobile ? -30 : -100]) }}
+        style={{ y: useTransform(scrollYProgress, [0, 1], [isMobile || prefersReducedMotion ? 0 : 100, isMobile || prefersReducedMotion ? 0 : -100]) }}
         className="absolute top-1/4 -right-20 w-80 h-80 border border-white/5 bg-white/5 backdrop-blur-sm rounded-[4rem] rotate-45 z-0 pointer-events-none" 
       />
       
@@ -728,12 +736,13 @@ const About = () => {
               <motion.img 
                 style={{ y, scale }}
                 whileHover={{ scale: 1.25 }}
-                transition={{ duration: 0.8 }}
+                transition={{ duration: 0.5 }}
                 src="https://iili.io/qSxUT57.md.jpg" 
                 alt="Portrait" 
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
                 loading="lazy"
+                decoding="async"
               />
             </div>
 
@@ -876,7 +885,7 @@ const Skills = () => {
                       initial={{ width: 0 }}
                       whileInView={{ width: `${bar.percentage}%` }}
                       viewport={{ once: true, margin: "-50px" }}
-                      transition={{ duration: 1.5, ease: "easeOut", delay: 0.3 + i * 0.1 }}
+                      transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 + i * 0.1 }}
                       className="h-full bg-[#00E676] rounded-full relative"
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/30" />
@@ -896,7 +905,8 @@ const Portfolio = () => {
   const [activeCategory, setActiveCategory] = useState('social media posts');
   const { scrollYProgress } = useScroll();
   const isMobile = useIsMobile();
-  const titleY = useTransform(scrollYProgress, [0, 1], [0, isMobile ? -40 : -150]);
+  const prefersReducedMotion = useReducedMotion();
+  const titleY = useTransform(scrollYProgress, [0, 1], [0, isMobile || prefersReducedMotion ? 0 : -150]);
   
   const categories = ['social media posts', 'ai posts', 'commercial work', 'thumbnails'];
 
@@ -951,20 +961,20 @@ const Portfolio = () => {
       { title: 'Cyberpunk', size: 'small', img: 'https://iili.io/qS072KN.md.png' },
     ],
     'commercial work': [
-      { title: 'Music Video', size: 'small', img: 'https://picsum.photos/seed/music/400/600' },
-      { title: 'Fashion Shoot', size: 'small', img: 'https://picsum.photos/seed/fashion/600/400' },
-      { title: 'Product Ad', size: 'small', img: 'https://picsum.photos/seed/product/400/600' },
-      { title: 'Corporate Event', size: 'small', img: 'https://picsum.photos/seed/corporate/800/600' },
-      { title: 'Food Promo', size: 'small', img: 'https://picsum.photos/seed/food/400/600' },
-      { title: 'Car Commercial', size: 'small', img: 'https://picsum.photos/seed/car/600/400' },
+      { title: 'Music Video', size: 'small', img: 'https://iili.io/qS0QjzN.md.png' },
+      { title: 'Fashion Shoot', size: 'small', img: 'https://iili.io/qSAL5ve.md.png' },
+      { title: 'Product Ad', size: 'small', img: 'https://iili.io/qUaEX4t.md.png' },
+      { title: 'Corporate Event', size: 'small', img: 'https://iili.io/qUaVUnR.md.png' },
+      { title: 'Food Promo', size: 'small', img: 'https://iili.io/qUaSPcb.md.png' },
+      { title: 'Car Commercial', size: 'small', img: 'https://iili.io/qUaPeHu.md.png' },
     ],
     'thumbnails': [
-      { title: 'Studio Session', size: 'small', img: 'https://picsum.photos/seed/studio/800/450' },
-      { title: 'Portrait Study', size: 'small', img: 'https://picsum.photos/seed/portrait/800/450' },
-      { title: 'Landscape View', size: 'small', img: 'https://picsum.photos/seed/landscape/800/450' },
-      { title: 'Night City', size: 'small', img: 'https://picsum.photos/seed/night/800/450' },
-      { title: 'Morning Light', size: 'small', img: 'https://picsum.photos/seed/morning/800/450' },
-      { title: 'Vlog Cover', size: 'small', img: 'https://picsum.photos/seed/vlog/800/450' },
+      { title: 'Studio Session', size: 'small', img: 'https://iili.io/qU1rZWx.md.jpg' },
+      { title: 'Portrait Study', size: 'small', img: 'https://iili.io/qU1ivp9.md.png' },
+      { title: 'Landscape View', size: 'small', img: 'https://iili.io/qU1QhBa.md.png' },
+      { title: 'Night City', size: 'small', img: 'https://iili.io/qUEl3U7.md.png' },
+      { title: 'Morning Light', size: 'small', img: 'https://iili.io/qUEG2Lb.md.png' },
+      { title: 'Vlog Cover', size: 'small', img: 'https://iili.io/qUEWOyN.md.jpg' },
     ]
   };
 
@@ -1016,7 +1026,7 @@ const Portfolio = () => {
                   <Magnetic key={cat}>
                     <button
                       onClick={() => setActiveCategory(cat)}
-                      className={`relative px-4 md:px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors duration-300 z-10 ${
+                      className={`relative px-4 md:px-6 py-2 min-h-[44px] rounded-full text-[10px] font-black uppercase tracking-widest transition-colors duration-300 z-10 ${
                         activeCategory === cat 
                           ? 'text-white' 
                           : 'text-white/40 hover:text-white'
@@ -1053,65 +1063,56 @@ const Portfolio = () => {
         >
           <AnimatePresence mode="popLayout">
             {activeProjects.map((project, i) => (
-              <TiltCard 
-                key={`${activeCategory}-${project.title}`}
-                className={`relative rounded-2xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-700 ${currentTheme.cardStyle}`}
+              <motion.div
+                key={`${activeCategory}-${project.title || i}-${project.img}`}
+                layout
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                transition={{ duration: 0.5, delay: i * 0.05 }}
               >
-                <motion.div 
-                  layout
-                  onClick={() => project.link && window.open(project.link, '_blank')}
-                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                  transition={{ duration: 0.5, delay: i * 0.05 }}
-                  whileHover={{ 
-                    y: -10,
-                    borderRadius: activeCategory === 'ai posts' ? "0px" : "40px 16px 40px 16px"
-                  }}
-                  whileTap={{ scale: 0.97 }}
-                  className="w-full h-full"
+                <TiltCard 
+                  className={`relative rounded-2xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-500 ${currentTheme.cardStyle}`}
                 >
+                  <motion.div 
+                    onClick={() => project.link && window.open(project.link, '_blank')}
+                    whileHover={prefersReducedMotion ? {} : { 
+                      y: -10,
+                      borderRadius: activeCategory === 'ai posts' ? "0px" : "40px 16px 40px 16px"
+                    }}
+                    whileTap={prefersReducedMotion ? {} : { scale: 0.97 }}
+                    className="w-full h-full"
+                  >
                   <div className="overflow-hidden h-full">
                     <motion.img 
-                      whileHover={{ scale: 1.1 }}
-                      transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
+                      whileHover={prefersReducedMotion ? {} : { scale: 1.1 }}
+                      transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
                       src={project.img} 
                       alt={project.title} 
-                      className="w-full h-full object-cover transition-all duration-1000 ease-in-out grayscale-[0.3] contrast-[1.1] brightness-[0.85] group-hover:grayscale-0 group-hover:contrast-100 group-hover:brightness-100"
+                      className="w-full h-full object-cover transition-all duration-500 ease-in-out grayscale-[0.3] contrast-[1.1] brightness-[0.85] group-hover:grayscale-0 group-hover:contrast-100 group-hover:brightness-100"
                       referrerPolicy="no-referrer"
                       loading="lazy"
                       decoding="async"
                     />
                   </div>
                   
-                  <div className={`absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-700 flex flex-col justify-end p-6 md:p-10`}>
+                  <div className={`absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-6 md:p-10`}>
                     <div className="overflow-hidden">
                       <motion.div
                         initial={{ y: 20, opacity: 0 }}
                         whileInView={{ y: 0, opacity: 1 }}
                         viewport={{ once: true }}
                         whileHover={{ y: 0, opacity: 1 }}
-                        className="translate-y-0 md:translate-y-4 md:group-hover:translate-y-0 transition-transform duration-700 ease-[0.19,1,0.22,1]"
+                        className="translate-y-0 md:translate-y-4 md:group-hover:translate-y-0 transition-transform duration-500 ease-[0.19,1,0.22,1]"
                         style={{ transform: "translateZ(50px)" }}
                       >
                         <p className={`font-bold text-[11px] uppercase tracking-[0.3em] mb-2 text-white/90`}>{currentTheme.label}</p>
-                        <h4 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter mb-4">
-                          <ScrambleText text={project.title} />
-                        </h4>
-                        <Magnetic>
-                          <motion.div 
-                            whileHover={{ scale: 1.1, backgroundColor: "#FF9F1C" }}
-                            whileTap={{ scale: 0.97, backgroundColor: "#FF9F1C" }}
-                            className="w-11 h-11 md:w-12 md:h-12 bg-white rounded-full flex items-center justify-center cursor-pointer transition-colors duration-300"
-                          >
-                            <Play size={16} className="text-black fill-current md:w-5 md:h-5" />
-                          </motion.div>
-                        </Magnetic>
                       </motion.div>
                     </div>
                   </div>
                 </motion.div>
               </TiltCard>
+            </motion.div>
             ))}
           </AnimatePresence>
         </motion.div>
@@ -1121,63 +1122,72 @@ const Portfolio = () => {
 };
 
 const Gallery = () => {
+  const prefersReducedMotion = useReducedMotion();
   const images = [
-    'https://picsum.photos/seed/cam1/600/800',
-    'https://picsum.photos/seed/cam2/600/400',
-    'https://picsum.photos/seed/cam3/600/600',
-    'https://picsum.photos/seed/cam4/600/800',
-    'https://picsum.photos/seed/cam5/600/400',
-    'https://picsum.photos/seed/cam6/600/600',
+    'https://iili.io/qUGCmyN.md.png',
+    'https://iili.io/qUGxhTN.md.png',
+    'https://iili.io/qUGAedg.md.png',
+    'https://iili.io/qUaPeHu.md.png',
+    'https://iili.io/qUGVFvp.md.png',
+    'https://iili.io/qUGExGj.md.png',
+    'https://iili.io/qUGxhTN.md.png',
+    'https://iili.io/qUGyPVV.md.png',
   ];
 
   return (
     <section id="gallery" className="py-24 md:py-40 px-6 bg-black text-white">
       <div className="max-w-7xl mx-auto">
         <Reveal className="text-center mb-16 md:mb-24">
-          <h2 className="text-4xl md:text-8xl font-black uppercase tracking-tighter mb-6">Behind the <span className="text-brand-orange">Lens</span></h2>
+          <h2 className="text-4xl md:text-8xl font-black uppercase tracking-tighter mb-6">My Work For <span className="text-brand-orange">Freedom Agency</span></h2>
           <p className="text-white/50 max-w-xl mx-auto text-lg">A collection of moments from the field, showcasing the gear, the process, and the passion.</p>
         </Reveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {images.map((img, i) => (
-            <Reveal key={i} delay={i * 0.1}>
-              <TiltCard>
-                <motion.div 
-                  whileHover={{ 
-                    y: -5, 
-                    boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-                    borderRadius: "40px 12px 40px 12px"
-                  }}
-                  whileTap={{ scale: 0.97, borderRadius: "40px 12px 40px 12px" }}
-                  className="relative rounded-2xl overflow-hidden group shadow-lg transition-all duration-500 cursor-pointer"
-                >
-                  <motion.img 
-                    whileHover={{ scale: 1.03 }}
-                    transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
-                    src={img} 
-                    alt={`Gallery ${i}`} 
-                    className="w-full h-auto grayscale md:hover:grayscale-0 transition-all duration-700"
-                    referrerPolicy="no-referrer"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                  <div className="absolute inset-0 bg-black/60 opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
-                    <Plus size={40} className="text-brand-orange" />
-                  </div>
-                </motion.div>
-              </TiltCard>
-            </Reveal>
-          ))}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 auto-rows-[250px] md:auto-rows-[350px] grid-flow-dense">
+          {images.map((img, i) => {
+            const spans = [
+              "md:col-span-2 md:row-span-1",
+              "md:col-span-2 md:row-span-1",
+              "md:col-span-1 md:row-span-1",
+              "md:col-span-1 md:row-span-1",
+              "md:col-span-1 md:row-span-1",
+              "md:col-span-1 md:row-span-1",
+              "md:col-span-2 md:row-span-1",
+              "md:col-span-1 md:row-span-1",
+            ];
+            return (
+              <a 
+                key={i} 
+                href="https://www.instagram.com/freedomfitness2234?igsh=YWEzeDM2bWEwdXM4"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`${spans[i] || ""} relative rounded-2xl overflow-hidden group shadow-lg transition-all duration-500 cursor-pointer block`}
+              >
+                <motion.img 
+                  whileHover={prefersReducedMotion ? {} : { scale: 1.03 }}
+                  transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
+                  src={img} 
+                  alt={`Gallery ${i}`} 
+                  className="w-full h-full object-cover transition-all duration-500"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <div className="absolute inset-0 bg-black/60 opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                  <Plus size={40} className="text-brand-orange" />
+                </div>
+              </a>
+            );
+          })}
         </div>
       </div>
     </section>
   );
 };
 
-const Services = () => {
+const Services = ({ onScriptClick }: { onScriptClick: () => void }) => {
+  const prefersReducedMotion = useReducedMotion();
   const services = [
     { icon: <Camera />, title: 'Photo Shoots', desc: 'Professional photography for portraits, events, and brands.' },
-    { icon: <PenTool />, title: 'Script Writing', desc: 'Creative and compelling scripts for videos and stories.' },
+    { icon: <PenTool />, title: 'Script Writing', desc: 'Creative and compelling scripts for videos and stories. Click to view my scripts.' },
     { icon: <Scissors />, title: 'Video Editing', desc: 'Cinematic edits, reels, and YouTube content.' },
     { icon: <Palette />, title: 'Graphic Designing', desc: 'Stunning visual designs for brands and social media.' },
   ];
@@ -1196,20 +1206,21 @@ const Services = () => {
             {services.map((service, i) => (
               <Reveal key={i} delay={i * 0.1}>
                 <motion.div 
-                  whileHover={{ 
+                  onClick={service.title === 'Script Writing' ? onScriptClick : undefined}
+                  whileHover={prefersReducedMotion ? {} : { 
                     y: -10, 
                     boxShadow: "0 30px 60px -12px rgba(0, 0, 0, 0.25), 0 18px 36px -18px rgba(0, 0, 0, 0.3)",
                     borderRadius: "32px",
                     borderColor: "rgba(255, 159, 28, 0.4)"
                   }}
-                  whileTap={{ scale: 0.97, borderRadius: "32px" }}
-                  className="p-10 bg-white/40 backdrop-blur-xl rounded-2xl shadow-xl shadow-black/5 transition-all duration-500 group border border-white/20 h-full relative overflow-hidden"
+                  whileTap={prefersReducedMotion ? {} : { scale: 0.97, borderRadius: "32px" }}
+                  className={`p-10 bg-white/40 backdrop-blur-xl rounded-2xl shadow-xl shadow-black/5 transition-all duration-500 group border border-white/20 h-full relative overflow-hidden ${service.title === 'Script Writing' ? 'cursor-pointer' : ''}`}
                 >
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-orange to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   
                   <Magnetic>
                     <motion.div 
-                      whileHover={{ 
+                      whileHover={prefersReducedMotion ? {} : { 
                         borderRadius: "30%",
                         rotate: 15,
                         scale: 1.1
@@ -1221,6 +1232,12 @@ const Services = () => {
                   </Magnetic>
                   <h3 className="text-2xl font-black uppercase tracking-tighter mb-4 group-hover:text-brand-orange transition-colors duration-300">{service.title}</h3>
                   <p className="text-black/50 text-sm leading-relaxed group-hover:text-black/70 transition-colors duration-300">{service.desc}</p>
+                  
+                  {service.title === 'Script Writing' && (
+                    <div className="mt-6 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-brand-orange opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      View Scripts <ArrowUpRight size={14} />
+                    </div>
+                  )}
                 </motion.div>
               </Reveal>
             ))}
@@ -1245,10 +1262,10 @@ const Footer = () => {
           
           <Reveal delay={0.2}>
             <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-black/30 mb-8">Navigation</h4>
-            <ul className="flex flex-col gap-5 font-bold text-lg">
+            <ul className="flex flex-col gap-2 font-bold text-lg">
               {['Home', 'About', 'Portfolio', 'Gallery'].map((item) => (
                 <li key={item}>
-                  <a href={`#${item.toLowerCase()}`} className="hover:text-brand-orange transition-all duration-300 inline-block">
+                  <a href={`#${item.toLowerCase()}`} className="hover:text-brand-orange transition-all duration-300 inline-block py-2">
                     <ScrambleText text={item} />
                   </a>
                 </li>
@@ -1258,7 +1275,7 @@ const Footer = () => {
 
           <Reveal delay={0.3}>
             <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-black/30 mb-8">Social</h4>
-            <ul className="flex flex-col gap-5 font-bold text-lg">
+            <ul className="flex flex-col gap-2 font-bold text-lg">
               {[
                 { name: 'Instagram', icon: <Instagram size={20} /> },
                 { name: 'YouTube', icon: <Youtube size={20} /> },
@@ -1267,7 +1284,7 @@ const Footer = () => {
               ].map((item) => (
                 <li key={item.name}>
                   <Magnetic>
-                    <a href={item.name === 'YouTube' ? "https://youtube.com/@adarsh-motion3?si=mb9vm4x8ZcHzlW39" : item.name === 'Facebook' ? "https://www.facebook.com/share/17S9LvBhnz/?mibextid=wwXIfr" : item.name === 'Instagram' ? "https://www.instagram.com/aadarsh_motion?igsh=MTV0b285YmI1YTRnaA%3D%3D&utm_source=qr" : "#"} target={item.name === 'YouTube' || item.name === 'Facebook' || item.name === 'Instagram' ? "_blank" : undefined} className="flex items-center gap-3 hover:text-brand-orange transition-all duration-300 cursor-pointer">
+                    <a href={item.name === 'YouTube' ? "https://youtube.com/@adarsh-motion3?si=mb9vm4x8ZcHzlW39" : item.name === 'Facebook' ? "https://www.facebook.com/share/17S9LvBhnz/?mibextid=wwXIfr" : item.name === 'Instagram' ? "https://www.instagram.com/aadarsh_motion?igsh=MTV0b285YmI1YTRnaA%3D%3D&utm_source=qr" : "#"} target={item.name === 'YouTube' || item.name === 'Facebook' || item.name === 'Instagram' ? "_blank" : undefined} className="flex items-center gap-3 hover:text-brand-orange transition-all duration-300 cursor-pointer py-2">
                       {item.icon} <ScrambleText text={item.name} />
                     </a>
                   </Magnetic>
@@ -1296,6 +1313,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showContent, setShowContent] = useState(false);
+  const [showScripts, setShowScripts] = useState(false);
   const { scrollYProgress } = useScroll();
 
   return (
@@ -1322,42 +1340,58 @@ export default function App() {
       </AnimatePresence>
 
       {showContent && (
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <motion.div
-            className="fixed top-0 left-0 right-0 h-1 bg-brand-orange origin-left z-[100]"
-            style={{ scaleX: scrollYProgress }}
-          />
-          <CursorFollower />
-          <BackgroundEffects />
-          <Navbar />
-          <Hero />
-          <About />
-          <Skills />
-          <Portfolio />
-          <Gallery />
-          <Services />
-          <Footer />
-          
-          <div className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-50">
-            <motion.button 
-              whileHover={{ 
-                scale: 1.15, 
-                backgroundColor: "#FF9F1C",
-                color: "#000",
-                boxShadow: "0 20px 40px -10px rgba(255, 159, 28, 0.5)"
-              }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="w-14 h-14 bg-black/80 backdrop-blur-xl text-white rounded-full flex items-center justify-center shadow-2xl border border-white/20 transition-colors duration-300"
+        <AnimatePresence mode="wait">
+          {showScripts ? (
+            <motion.div
+              key="scripts-page"
+              initial={{ opacity: 0, x: 100 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -100 }}
+              transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
             >
-              <ArrowUpRight size={24} className="-rotate-45" />
-            </motion.button>
-          </div>
-        </motion.div>
+              <ScriptsPage onBack={() => setShowScripts(false)} />
+            </motion.div>
+          ) : (
+            <motion.div 
+              key="main-content"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <motion.div
+                className="fixed top-0 left-0 right-0 h-1 bg-brand-orange origin-left z-[100]"
+                style={{ scaleX: scrollYProgress }}
+              />
+              <CursorFollower />
+              <BackgroundEffects />
+              <Navbar />
+              <Hero />
+              <About />
+              <Skills />
+              <Portfolio />
+              <Gallery />
+              <Services onScriptClick={() => setShowScripts(true)} />
+              <Footer />
+              
+              <div className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-50">
+                <motion.button 
+                  whileHover={{ 
+                    scale: 1.15, 
+                    backgroundColor: "#FF9F1C",
+                    color: "#000",
+                    boxShadow: "0 20px 40px -10px rgba(255, 159, 28, 0.5)"
+                  }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="w-14 h-14 bg-black/80 backdrop-blur-xl text-white rounded-full flex items-center justify-center shadow-2xl border border-white/20 transition-colors duration-300"
+                >
+                  <ArrowUpRight size={24} className="-rotate-45" />
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       )}
     </div>
   );

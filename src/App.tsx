@@ -212,7 +212,8 @@ const Counter = ({ value, duration = 2, suffix = "" }: { value: number, duration
 
 const Reveal = ({ children, delay = 0, width = "auto", className = "", fullHeight = false }: { children: React.ReactNode, delay?: number, width?: "auto" | "100%", className?: string, key?: React.Key, fullHeight?: boolean }) => {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const isMobile = useIsMobile();
+  const isInView = useInView(ref, { once: true, margin: isMobile ? "-10px" : "-50px" });
   const prefersReducedMotion = useReducedMotion();
 
   return (
@@ -220,7 +221,7 @@ const Reveal = ({ children, delay = 0, width = "auto", className = "", fullHeigh
       <motion.div
         initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 15 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: prefersReducedMotion ? 0 : 15 }}
-        transition={{ duration: prefersReducedMotion ? 0.3 : 0.6, delay: prefersReducedMotion ? 0 : delay, ease: [0.19, 1, 0.22, 1] }}
+        transition={{ duration: prefersReducedMotion ? 0.3 : 0.6, delay: prefersReducedMotion ? 0 : (isMobile ? delay * 0.5 : delay), ease: [0.19, 1, 0.22, 1] }}
         className={fullHeight ? "h-full" : ""}
       >
         {children}
@@ -736,7 +737,7 @@ const About = () => {
             <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl">
               <motion.img 
                 style={{ y, scale }}
-                whileHover={{ scale: 1.25 }}
+                whileHover={isMobile || prefersReducedMotion ? {} : { scale: 1.25 }}
                 transition={{ duration: 0.5 }}
                 src="https://iili.io/qSxUT57.md.jpg" 
                 alt="Portrait" 
@@ -789,6 +790,7 @@ const About = () => {
 };
 
 const Skills = () => {
+  const isMobile = useIsMobile();
   const skillsList = [
     "Visual Design",
     "Branding & Identity",
@@ -841,7 +843,7 @@ const Skills = () => {
 
             <Reveal delay={0.4}>
               <motion.button 
-                whileHover={{ 
+                whileHover={isMobile ? {} : { 
                   scale: 1.05, 
                   backgroundColor: "#00E676", 
                   color: "#000", 
@@ -877,7 +879,7 @@ const Skills = () => {
                     <motion.div 
                       initial={{ width: 0 }}
                       whileInView={{ width: `${bar.percentage}%` }}
-                      viewport={{ once: true, margin: "-50px" }}
+                      viewport={{ once: true, margin: isMobile ? "-10px" : "-50px" }}
                       transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 + i * 0.1 }}
                       className="h-full bg-[#00E676] rounded-full relative"
                     >
@@ -1065,16 +1067,16 @@ const Portfolio = () => {
                 >
                   <motion.div 
                     onClick={() => project.link && window.open(project.link, '_blank')}
-                    whileHover={prefersReducedMotion ? {} : { 
+                    whileHover={isMobile || prefersReducedMotion ? {} : { 
                       y: -10,
                       borderRadius: activeCategory === 'ai posts' ? "0px" : "40px 16px 40px 16px"
                     }}
-                    whileTap={prefersReducedMotion ? {} : { scale: 0.97 }}
+                    whileTap={{ scale: 0.97 }}
                     className="w-full h-full"
                   >
                   <div className="overflow-hidden h-full">
                     <motion.img 
-                      whileHover={prefersReducedMotion ? {} : { scale: 1.1 }}
+                      whileHover={isMobile || prefersReducedMotion ? {} : { scale: 1.1 }}
                       transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
                       src={project.img} 
                       alt={project.title} 
@@ -1446,6 +1448,7 @@ const Gallery = () => {
 };
 
 const Services = ({ onScriptClick }: { onScriptClick: () => void }) => {
+  const isMobile = useIsMobile();
   const prefersReducedMotion = useReducedMotion();
   const services = [
     { icon: <Camera />, title: 'Photo Shoots', desc: 'Professional photography for portraits, events, and brands.' },
@@ -1469,20 +1472,20 @@ const Services = ({ onScriptClick }: { onScriptClick: () => void }) => {
               <Reveal key={i} delay={i * 0.1}>
                 <motion.div 
                   onClick={service.title === 'Script Writing' ? onScriptClick : undefined}
-                  whileHover={prefersReducedMotion ? {} : { 
+                  whileHover={isMobile || prefersReducedMotion ? {} : { 
                     y: -10, 
                     boxShadow: "0 30px 60px -12px rgba(0, 0, 0, 0.25), 0 18px 36px -18px rgba(0, 0, 0, 0.3)",
                     borderRadius: "32px",
                     borderColor: "rgba(255, 159, 28, 0.4)"
                   }}
-                  whileTap={prefersReducedMotion ? {} : { scale: 0.97, borderRadius: "32px" }}
+                  whileTap={{ scale: 0.97, borderRadius: "32px" }}
                   className={`p-10 bg-white/40 backdrop-blur-xl rounded-2xl shadow-xl shadow-black/5 transition-all duration-500 group border border-white/20 h-full relative overflow-hidden ${service.title === 'Script Writing' ? 'cursor-pointer' : ''}`}
                 >
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-orange to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   
                   <Magnetic>
                     <motion.div 
-                      whileHover={prefersReducedMotion ? {} : { 
+                      whileHover={isMobile || prefersReducedMotion ? {} : { 
                         borderRadius: "30%",
                         rotate: 15,
                         scale: 1.1

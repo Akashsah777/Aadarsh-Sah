@@ -91,36 +91,29 @@ export const SoundProvider = ({ children }: { children: React.ReactNode }) => {
 
     switch (type) {
       case 'hover':
-        // Ultra-short tactile "tick"
-        createOscillator(1600, 'sine', now, 0.02, 0.015);
+        // Very soft, short sine "blip"
+        createOscillator(800, 'sine', now, 0.01, 0.005);
         break;
       case 'click':
-        // Tactile "mechanical" click
-        createOscillator(1000, 'sine', now, 0.04, 0.04);
-        createOscillator(200, 'square', now, 0.03, 0.02);
-        createNoise(now, 0.02, 0.01, 8000);
+        // Soft, rounded click
+        createOscillator(400, 'sine', now, 0.03, 0.02);
         break;
       case 'transition':
-        // Deep cinematic whoosh
-        createNoise(now, 1.2, 0.03, 4000, 50);
-        createOscillator(80, 'sine', now, 1.2, 0.02, 40);
+        // Gentle, slow whoosh
+        createNoise(now, 1.0, 0.01, 1000, 20);
+        createOscillator(60, 'sine', now, 1.0, 0.01, 20);
         break;
       case 'shutter':
-        // Mechanical camera shutter
-        createOscillator(200, 'square', now, 0.05, 0.1);
-        createOscillator(1500, 'sine', now + 0.05, 0.04, 0.05);
-        createNoise(now, 0.12, 0.03, 6000);
-        createNoise(now + 0.06, 0.08, 0.02, 4000);
+        // Soft, mechanical click
+        createOscillator(120, 'sine', now, 0.04, 0.03);
         break;
       case 'pop':
-        // Cinematic impact "thud"
-        createOscillator(50, 'sine', now, 0.5, 0.12, 30);
-        createOscillator(1000, 'sine', now, 0.08, 0.03);
-        createNoise(now, 0.25, 0.02, 10000);
+        // Soft, low-frequency thud
+        createOscillator(40, 'sine', now, 0.3, 0.05, 20);
         break;
       case 'scroll':
-        // Subtle tactile scroll "tick"
-        createOscillator(2000, 'sine', now, 0.01, 0.005);
+        // Extremely subtle tick
+        createOscillator(1000, 'sine', now, 0.005, 0.002);
         break;
     }
   };

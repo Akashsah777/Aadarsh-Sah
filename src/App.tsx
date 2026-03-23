@@ -21,10 +21,9 @@ import {
   Facebook,
   MessageCircle, 
   Menu, 
-  X
+  X 
 } from 'lucide-react';
 import ScriptsPage from './components/ScriptsPage';
-import { SoundProvider, useSound } from './context/SoundContext';
 
 // --- Hooks ---
 const useIsMobile = () => {
@@ -45,7 +44,6 @@ const CursorFollower = () => {
   const cursorY = useMotionValue(-100);
   const [isPressed, setIsPressed] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
-  const { playSound } = useSound();
 
   const OFFSET = 24;
   const springConfig = { damping: 25, stiffness: 300 };
@@ -60,17 +58,9 @@ const CursorFollower = () => {
       // Check if hovering over interactive elements
       const target = e.target as HTMLElement;
       const isInteractive = target.closest('button, a, input, [role="button"]');
-      
-      if (!!isInteractive && !isHovering) {
-        playSound('hover');
-      }
-      
       setIsHovering(!!isInteractive);
     };
-    const handleMouseDown = () => {
-      setIsPressed(true);
-      playSound('click');
-    };
+    const handleMouseDown = () => setIsPressed(true);
     const handleMouseUp = () => setIsPressed(false);
 
     window.addEventListener('mousemove', moveCursor);
@@ -82,7 +72,7 @@ const CursorFollower = () => {
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [cursorX, cursorY, isHovering, playSound]);
+  }, [cursorX, cursorY]);
 
   return (
     <>
@@ -121,7 +111,6 @@ const Magnetic = ({ children, className }: { children: React.ReactNode, classNam
   const ref = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const prefersReducedMotion = useReducedMotion();
-  const { playSound } = useSound();
 
   const handleMouse = (e: React.MouseEvent) => {
     if (!ref.current || prefersReducedMotion) return;
@@ -142,7 +131,6 @@ const Magnetic = ({ children, className }: { children: React.ReactNode, classNam
       style={{ position: "relative" }}
       ref={ref}
       onMouseMove={handleMouse}
-      onMouseEnter={() => playSound('hover')}
       onMouseLeave={reset}
       animate={{ x, y }}
       transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}
@@ -165,7 +153,6 @@ const TiltCard = ({ children, className }: { children: React.ReactNode, classNam
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const prefersReducedMotion = useReducedMotion();
-  const { playSound } = useSound();
 
   const mouseXSpring = useSpring(x);
   const mouseYSpring = useSpring(y);
@@ -186,10 +173,6 @@ const TiltCard = ({ children, className }: { children: React.ReactNode, classNam
     y.set(yPct);
   };
 
-  const handleMouseEnter = () => {
-    playSound('hover');
-  };
-
   const handleMouseLeave = () => {
     x.set(0);
     y.set(0);
@@ -198,7 +181,6 @@ const TiltCard = ({ children, className }: { children: React.ReactNode, classNam
   return (
     <motion.div
       onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       style={{ rotateY, rotateX, transformStyle: "preserve-3d" }}
       className={className}
@@ -233,13 +215,6 @@ const Reveal = ({ children, delay = 0, width = "auto", className = "", fullHeigh
   const isMobile = useIsMobile();
   const isInView = useInView(ref, { once: true, margin: isMobile ? "-10px" : "-50px" });
   const prefersReducedMotion = useReducedMotion();
-  const { playSound } = useSound();
-
-  useEffect(() => {
-    if (isInView) {
-      playSound('pop');
-    }
-  }, [isInView, playSound]);
 
   return (
     <div ref={ref} className={className} style={{ position: "relative", width, overflow: fullHeight ? "visible" : "hidden", height: fullHeight ? "100%" : "auto" }}>
@@ -256,12 +231,6 @@ const Reveal = ({ children, delay = 0, width = "auto", className = "", fullHeigh
 };
 
 const ShutterTransition = ({ onComplete }: { onComplete: () => void, key?: string }) => {
-  const { playSound } = useSound();
-
-  useEffect(() => {
-    playSound('shutter');
-  }, [playSound]);
-
   return (
     <motion.div
       initial={{ opacity: 1 }}
@@ -302,10 +271,8 @@ const ShutterTransition = ({ onComplete }: { onComplete: () => void, key?: strin
 const Preloader = ({ onComplete }: { onComplete: () => void, key?: string }) => {
   const words = ["VISION", "EXECUTION", "IMPACT"];
   const [index, setIndex] = useState(0);
-  const { playSound } = useSound();
 
   useEffect(() => {
-    playSound('pop');
     if (index < words.length - 1) {
       const timeout = setTimeout(() => setIndex(index + 1), 1400);
       return () => clearTimeout(timeout);
@@ -313,7 +280,7 @@ const Preloader = ({ onComplete }: { onComplete: () => void, key?: string }) => 
       const timeout = setTimeout(onComplete, 1400);
       return () => clearTimeout(timeout);
     }
-  }, [index, onComplete, words.length, playSound]);
+  }, [index, onComplete, words.length]);
 
   return (
     <motion.div 
@@ -403,7 +370,6 @@ const BackgroundEffects = () => {
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { playSound } = useSound();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -427,8 +393,6 @@ const Navbar = () => {
         <motion.a 
           href="#home" 
           whileHover="hover"
-          onMouseEnter={() => playSound('hover')}
-          onClick={() => playSound('click')}
           className="text-2xl font-black tracking-tighter flex items-center gap-1"
         >
           <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center overflow-hidden">
@@ -452,8 +416,6 @@ const Navbar = () => {
             <a 
               key={link.name} 
               href={link.href} 
-              onMouseEnter={() => playSound('hover')}
-              onClick={() => playSound('click')}
               className="text-sm font-black uppercase tracking-widest hover:text-brand-orange transition-colors py-2"
             >
               <ScrambleText text={link.name} />
@@ -463,8 +425,6 @@ const Navbar = () => {
             <motion.a 
               href="https://wa.me/9779709026078?text=I%20want%20to%20hire%20you"
               target="_blank"
-              onMouseEnter={() => playSound('hover')}
-              onClick={() => playSound('click')}
               whileHover={{ 
                 scale: 1.05, 
                 backgroundColor: "#FF9F1C", 
@@ -483,10 +443,7 @@ const Navbar = () => {
         {/* Mobile Toggle */}
         <button 
           className="md:hidden w-11 h-11 flex items-center justify-center rounded-full bg-black/5 hover:bg-black/10 transition-colors"
-          onClick={() => {
-            setIsMobileMenuOpen(!isMobileMenuOpen);
-            playSound('click');
-          }}
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? <X /> : <Menu />}
         </button>
@@ -510,10 +467,7 @@ const Navbar = () => {
                 key={link.name} 
                 href={link.href} 
                 className="text-4xl font-black uppercase tracking-tighter hover:text-brand-orange transition-colors py-4 block"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  playSound('click');
-                }}
+                onClick={() => setIsMobileMenuOpen(false)}
               >
                 {link.name}
               </motion.a>
@@ -540,7 +494,6 @@ const Hero = () => {
   const { scrollY } = useScroll();
   const isMobile = useIsMobile();
   const prefersReducedMotion = useReducedMotion();
-  const { playSound } = useSound();
   
   const y1 = useTransform(scrollY, [0, 500], [0, isMobile || prefersReducedMotion ? 0 : 200]);
   const y2 = useTransform(scrollY, [0, 500], [0, isMobile || prefersReducedMotion ? 0 : -100]);
@@ -643,8 +596,6 @@ const Hero = () => {
                     <motion.a 
                       href={item.label === 'wa' ? "https://wa.me/9779709026078?text=I%20want%20to%20hire%20you" : item.label === 'yt' ? "https://youtube.com/@adarsh-motion3?si=mb9vm4x8ZcHzlW39" : item.label === 'fb' ? "https://www.facebook.com/share/17S9LvBhnz/?mibextid=wwXIfr" : item.label === 'ig' ? "https://www.instagram.com/aadarsh_motion?igsh=MTV0b285YmI1YTRnaA%3D%3D&utm_source=qr" : "#"}
                       target={item.label === 'wa' || item.label === 'yt' || item.label === 'fb' || item.label === 'ig' ? "_blank" : undefined}
-                      onMouseEnter={() => playSound('hover')}
-                      onClick={() => playSound('click')}
                       whileHover={{ 
                         scale: 1.1, 
                         backgroundColor: "#FF9F1C", 
@@ -664,44 +615,44 @@ const Hero = () => {
             </div>
 
             <div className="grid grid-cols-2 gap-6 md:gap-12">
-              <Reveal>
-                <motion.button 
-                  whileHover={{ 
-                    scale: 1.05, 
-                    backgroundColor: "#FF9F1C", 
-                    color: "#000",
-                    boxShadow: "0 20px 40px -10px rgba(255, 159, 28, 0.5)",
-                    borderRadius: "12px",
-                    borderColor: "transparent"
-                  }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => {
-                    document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' });
-                    playSound('click');
-                  }}
-                  className="w-full px-4 py-4 min-h-[44px] rounded-full bg-black text-white text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500"
+              <Reveal delay={0.4}>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: 0.4, ease: [0.19, 1, 0.22, 1] }}
                 >
-                  View Portfolio
-                </motion.button>
+                  <p className="text-5xl font-black tracking-tighter text-brand-orange">
+                    <Counter value={100} suffix="k+" />
+                  </p>
+                  <p className="text-[10px] uppercase font-bold text-black/40 tracking-[0.2em] mt-2">Views on social media</p>
+                </motion.div>
               </Reveal>
-              <Reveal delay={0.1}>
-                <motion.button 
-                  whileHover={{ 
-                    scale: 1.05, 
-                    backgroundColor: "#000", 
-                    color: "#fff",
-                    borderRadius: "12px"
-                  }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => {
-                    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-                    playSound('click');
-                  }}
-                  className="w-full px-4 py-4 min-h-[44px] rounded-full border border-black/20 text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500"
+              <Reveal delay={0.5}>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: 0.5, ease: [0.19, 1, 0.22, 1] }}
+                >
+                  <p className="text-5xl font-black tracking-tighter text-black">
+                    <Counter value={45} suffix="+" />
+                  </p>
+                  <p className="text-[10px] uppercase font-bold text-black/40 tracking-[0.2em] mt-2">Completed Projects</p>
+                </motion.div>
+              </Reveal>
+            </div>
+            <div className="flex gap-4 mt-8">
+              <Magnetic>
+                <a href="#portfolio" className="px-6 py-3 bg-black text-white rounded-full text-xs font-bold uppercase tracking-widest hover:bg-brand-orange transition-colors">Portfolio</a>
+              </Magnetic>
+              <Magnetic>
+                <a 
+                  href="https://wa.me/9779709026078?text=I%20want%20to%20hire%20you" 
+                  target="_blank"
+                  className="px-6 py-3 border border-black/20 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-colors"
                 >
                   Contact Me
-                </motion.button>
-              </Reveal>
+                </a>
+              </Magnetic>
             </div>
           </motion.div>
         </motion.div>
@@ -771,7 +722,6 @@ const About = () => {
   const { scrollYProgress } = useScroll();
   const isMobile = useIsMobile();
   const prefersReducedMotion = useReducedMotion();
-  const { playSound } = useSound();
   const y = useTransform(scrollYProgress, [0, 1], [0, isMobile || prefersReducedMotion ? 0 : -100]);
   const rotate = useTransform(scrollYProgress, [0, 1], [0, isMobile || prefersReducedMotion ? 0 : 20]);
   const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1.2, isMobile || prefersReducedMotion ? 1.2 : 1.3, 1.2]);
@@ -838,11 +788,7 @@ const About = () => {
                 { num: '03', title: 'Impact', desc: 'Creating content that drives engagement and results.' }
               ].map((item, i) => (
                 <Reveal key={i} delay={0.3 + i * 0.1}>
-                  <div 
-                    onMouseEnter={() => playSound('hover')}
-                    onClick={() => playSound('click')}
-                    className="p-8 border border-white/10 bg-white/5 backdrop-blur-md rounded-2xl hover:bg-white/10 transition-all hover:border-brand-orange/50 group h-full shadow-xl shadow-black/10 cursor-pointer"
-                  >
+                  <div className="p-8 border border-white/10 bg-white/5 backdrop-blur-md rounded-2xl hover:bg-white/10 transition-all hover:border-brand-orange/50 group h-full shadow-xl shadow-black/10">
                     <p className="text-brand-orange font-bold mb-4 tracking-widest">{item.num}</p>
                     <h3 className="text-2xl font-bold mb-3 uppercase tracking-tighter">{item.title}</h3>
                     <p className="text-sm text-white/50 leading-relaxed">{item.desc}</p>
@@ -859,7 +805,6 @@ const About = () => {
 
 const Skills = () => {
   const isMobile = useIsMobile();
-  const { playSound } = useSound();
   const skillsList = [
     "Visual Design",
     "Branding & Identity",
@@ -923,11 +868,7 @@ const Skills = () => {
                 whileTap={{ scale: 0.97 }}
                 transition={{ type: "spring", stiffness: 400, damping: 15 }}
                 className="px-10 py-4 min-h-[44px] rounded-full border border-white/20 text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 w-fit mt-4"
-                onMouseEnter={() => playSound('hover')}
-                onClick={() => {
-                  document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-                  playSound('click');
-                }}
+                onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
               >
                 Hire Me
               </motion.button>
@@ -938,10 +879,7 @@ const Skills = () => {
           <div className="flex flex-col justify-center gap-12">
             {progressBars.map((bar, i) => (
               <Reveal key={i} delay={0.2 + i * 0.1}>
-                <div 
-                  onMouseEnter={() => playSound('hover')}
-                  className="flex flex-col gap-4 group cursor-default"
-                >
+                <div className="flex flex-col gap-4">
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-4">
                       <div className="p-3 md:p-4 bg-white/5 rounded-xl border border-white/10">
@@ -977,7 +915,6 @@ const Portfolio = () => {
   const { scrollYProgress } = useScroll();
   const isMobile = useIsMobile();
   const prefersReducedMotion = useReducedMotion();
-  const { playSound } = useSound();
   const titleY = useTransform(scrollYProgress, [0, 1], [0, isMobile || prefersReducedMotion ? 0 : -150]);
   
   const categories = ['social media posts', 'ai posts', 'commercial work', 'thumbnails'];
@@ -1093,11 +1030,7 @@ const Portfolio = () => {
                 {categories.map((cat) => (
                   <Magnetic key={cat}>
                     <button
-                      onClick={() => {
-                        setActiveCategory(cat);
-                        playSound('click');
-                      }}
-                      onMouseEnter={() => playSound('hover')}
+                      onClick={() => setActiveCategory(cat)}
                       className={`relative px-4 md:px-6 py-2 min-h-[44px] rounded-full text-[10px] font-black uppercase tracking-widest transition-colors duration-300 z-10 ${
                         activeCategory === cat 
                           ? 'text-white' 
@@ -1147,12 +1080,7 @@ const Portfolio = () => {
                   className={`relative rounded-2xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-500 ${currentTheme.cardStyle}`}
                 >
                   <motion.div 
-                    onClick={() => {
-                      if (project.link) {
-                        window.open(project.link, '_blank');
-                        playSound('click');
-                      }
-                    }}
+                    onClick={() => project.link && window.open(project.link, '_blank')}
                     whileHover={isMobile || prefersReducedMotion ? {} : { 
                       y: -10,
                       borderRadius: activeCategory === 'ai posts' ? "0px" : "40px 16px 40px 16px"
@@ -1206,7 +1134,6 @@ const VideoPlayerModal = ({ video, onClose }: { video: { url: string, title: str
   const [duration, setDuration] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const { playSound } = useSound();
 
   const isVertical = video.category === 'Reel' || video.category === 'Shorts';
   const isVimeo = video.url.includes('vimeo.com');
@@ -1283,11 +1210,7 @@ const VideoPlayerModal = ({ video, onClose }: { video: { url: string, title: str
         onClick={(e) => e.stopPropagation()}
       >
         <button 
-          onClick={() => {
-            onClose();
-            playSound('click');
-          }}
-          onMouseEnter={() => playSound('hover')}
+          onClick={onClose}
           className="absolute top-6 right-6 z-20 w-10 h-10 bg-black/50 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-brand-orange transition-colors"
         >
           <X size={20} />
@@ -1398,7 +1321,6 @@ const VideoPlayerModal = ({ video, onClose }: { video: { url: string, title: str
 
 const VideoSection = () => {
   const [selectedVideo, setSelectedVideo] = useState<{ url: string, title: string, category: string } | null>(null);
-  const { playSound } = useSound();
   
   const categories = ['Cinematic', 'Reel', 'Gym', 'Shorts'];
 
@@ -1452,15 +1374,10 @@ const VideoSection = () => {
                 <div className={`grid ${isVertical ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'} gap-8`}>
                   {videos.filter(v => v.category === category).slice(0, 4).map((video, i) => (
                     <Reveal key={video.title} delay={i * 0.1}>
-                      <TiltCard 
-                        className={`group relative ${isVertical ? 'aspect-[9/16]' : 'aspect-video'} rounded-3xl overflow-hidden cursor-pointer shadow-2xl border border-white/5 bg-white/5 backdrop-blur-sm`}
-                      >
+                      <TiltCard className={`group relative ${isVertical ? 'aspect-[9/16]' : 'aspect-video'} rounded-3xl overflow-hidden cursor-pointer shadow-2xl border border-white/5 bg-white/5 backdrop-blur-sm`}>
                         <div 
                           className="w-full h-full relative"
-                          onClick={() => {
-                            setSelectedVideo(video);
-                            playSound('click');
-                          }}
+                          onClick={() => setSelectedVideo(video)}
                         >
                           <img 
                             src={video.thumbnail} 
@@ -1493,10 +1410,7 @@ const VideoSection = () => {
         {selectedVideo && (
           <VideoPlayerModal 
             video={selectedVideo} 
-            onClose={() => {
-              setSelectedVideo(null);
-              playSound('click');
-            }} 
+            onClose={() => setSelectedVideo(null)} 
           />
         )}
       </AnimatePresence>
@@ -1506,7 +1420,6 @@ const VideoSection = () => {
 
 const Gallery = () => {
   const prefersReducedMotion = useReducedMotion();
-  const { playSound } = useSound();
   const images = [
     'https://iili.io/qUGCmyN.md.png',
     'https://iili.io/qUGxhTN.md.png',
@@ -1544,8 +1457,6 @@ const Gallery = () => {
                 href="https://www.instagram.com/freedomfitness2234?igsh=YWEzeDM2bWEwdXM4"
                 target="_blank"
                 rel="noopener noreferrer"
-                onMouseEnter={() => playSound('hover')}
-                onClick={() => playSound('click')}
                 className={`${spans[i] || ""} relative rounded-2xl overflow-hidden group shadow-lg transition-all duration-500 cursor-pointer block bg-white/5`}
               >
                 <motion.img 
@@ -1575,7 +1486,6 @@ const Gallery = () => {
 const Services = ({ onScriptClick }: { onScriptClick: () => void }) => {
   const isMobile = useIsMobile();
   const prefersReducedMotion = useReducedMotion();
-  const { playSound } = useSound();
   const services = [
     { icon: <Camera />, title: 'Photo Shoots', desc: 'Professional photography for portraits, events, and brands.' },
     { icon: <PenTool />, title: 'Script Writing', desc: 'Creative and compelling scripts for videos and stories. Click to view my scripts.' },
@@ -1597,13 +1507,7 @@ const Services = ({ onScriptClick }: { onScriptClick: () => void }) => {
             {services.map((service, i) => (
               <Reveal key={i} delay={i * 0.1}>
                 <motion.div 
-                  onClick={() => {
-                    if (service.title === 'Script Writing') {
-                      onScriptClick();
-                      playSound('click');
-                    }
-                  }}
-                  onMouseEnter={() => playSound('hover')}
+                  onClick={service.title === 'Script Writing' ? onScriptClick : undefined}
                   whileHover={isMobile || prefersReducedMotion ? {} : { 
                     y: -10, 
                     boxShadow: "0 30px 60px -12px rgba(0, 0, 0, 0.25), 0 18px 36px -18px rgba(0, 0, 0, 0.3)",
@@ -1646,7 +1550,6 @@ const Services = ({ onScriptClick }: { onScriptClick: () => void }) => {
 };
 
 const Footer = () => {
-  const { playSound } = useSound();
   return (
     <footer id="contact" className="bg-brand-bg pt-24 md:pt-40 pb-12 px-6 overflow-hidden">
       <div className="max-w-7xl mx-auto">
@@ -1663,12 +1566,7 @@ const Footer = () => {
             <ul className="flex flex-col gap-2 font-bold text-lg">
               {['Home', 'About', 'Portfolio', 'Gallery'].map((item) => (
                 <li key={item}>
-                  <a 
-                    href={`#${item.toLowerCase()}`} 
-                    onMouseEnter={() => playSound('hover')}
-                    onClick={() => playSound('click')}
-                    className="hover:text-brand-orange transition-all duration-300 inline-block py-2"
-                  >
+                  <a href={`#${item.toLowerCase()}`} className="hover:text-brand-orange transition-all duration-300 inline-block py-2">
                     <ScrambleText text={item} />
                   </a>
                 </li>
@@ -1687,13 +1585,7 @@ const Footer = () => {
               ].map((item) => (
                 <li key={item.name}>
                   <Magnetic>
-                    <a 
-                      href={item.name === 'YouTube' ? "https://youtube.com/@adarsh-motion3?si=mb9vm4x8ZcHzlW39" : item.name === 'Facebook' ? "https://www.facebook.com/share/17S9LvBhnz/?mibextid=wwXIfr" : item.name === 'Instagram' ? "https://www.instagram.com/aadarsh_motion?igsh=MTV0b285YmI1YTRnaA%3D%3D&utm_source=qr" : "#"} 
-                      target={item.name === 'YouTube' || item.name === 'Facebook' || item.name === 'Instagram' ? "_blank" : undefined} 
-                      onMouseEnter={() => playSound('hover')}
-                      onClick={() => playSound('click')}
-                      className="flex items-center gap-3 hover:text-brand-orange transition-all duration-300 cursor-pointer py-2"
-                    >
+                    <a href={item.name === 'YouTube' ? "https://youtube.com/@adarsh-motion3?si=mb9vm4x8ZcHzlW39" : item.name === 'Facebook' ? "https://www.facebook.com/share/17S9LvBhnz/?mibextid=wwXIfr" : item.name === 'Instagram' ? "https://www.instagram.com/aadarsh_motion?igsh=MTV0b285YmI1YTRnaA%3D%3D&utm_source=qr" : "#"} target={item.name === 'YouTube' || item.name === 'Facebook' || item.name === 'Instagram' ? "_blank" : undefined} className="flex items-center gap-3 hover:text-brand-orange transition-all duration-300 cursor-pointer py-2">
                       {item.icon} <ScrambleText text={item.name} />
                     </a>
                   </Magnetic>
@@ -1718,36 +1610,12 @@ const Footer = () => {
 
 // --- Main App ---
 
-function MainApp() {
+export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showContent, setShowContent] = useState(false);
   const [showScripts, setShowScripts] = useState(false);
-  const { scrollY } = useScroll();
   const { scrollYProgress } = useScroll();
-  const { playSound } = useSound();
-  const lastScrollY = useRef(0);
-  const scrollThreshold = 150; // px between ticks
-
-  useEffect(() => {
-    // Initial cinematic sound on mount
-    playSound('pop');
-  }, []);
-
-  useEffect(() => {
-    return scrollY.on("change", (latest) => {
-      if (Math.abs(latest - lastScrollY.current) > scrollThreshold) {
-        playSound('scroll');
-        lastScrollY.current = latest;
-      }
-    });
-  }, [scrollY, playSound]);
-
-  useEffect(() => {
-    if (showContent) {
-      playSound('transition');
-    }
-  }, [showContent, playSound]);
 
   return (
     <div className="relative">
@@ -1817,10 +1685,7 @@ function MainApp() {
                     boxShadow: "0 20px 40px -10px rgba(255, 159, 28, 0.5)"
                   }}
                   whileTap={{ scale: 0.97 }}
-                  onClick={() => {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    playSound('click');
-                  }}
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                   className="w-14 h-14 bg-black/80 backdrop-blur-xl text-white rounded-full flex items-center justify-center shadow-2xl border border-white/20 transition-colors duration-300"
                 >
                   <ArrowUpRight size={24} className="-rotate-45" />
@@ -1831,13 +1696,5 @@ function MainApp() {
         </AnimatePresence>
       )}
     </div>
-  );
-}
-
-export default function App() {
-  return (
-    <SoundProvider>
-      <MainApp />
-    </SoundProvider>
   );
 }

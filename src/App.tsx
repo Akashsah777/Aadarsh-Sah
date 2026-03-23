@@ -380,6 +380,7 @@ const Navbar = () => {
     { name: 'Home', href: '#home' },
     { name: 'About', href: '#about' },
     { name: 'Portfolio', href: '#portfolio' },
+    { name: 'Videos', href: '#videos' },
     { name: 'Gallery', href: '#gallery' },
     { name: 'Services', href: '#services' },
     { name: 'Contact', href: '#contact' },
@@ -797,7 +798,7 @@ const Skills = () => {
     "Viral Storytelling"
   ];
 
-  const toolsList = "Canva, CapCut, VN Editor, Figma, Photoshop (Basic), Premiere Pro (Learning Stage)";
+  const toolsList = "Canva, CapCut, VN Editor, Figma, Photoshop, Premiere Pro";
 
   const progressBars = [
     { name: "Canva", percentage: 90, icon: Palette },
@@ -915,7 +916,7 @@ const Portfolio = () => {
       accent: "bg-[#00E5FF]",
       bg: "bg-[#11161a]",
       cardStyle: "aspect-[2/3]",
-      label: "AI Cinematic"
+      label: "AI Post"
     },
     'commercial work': {
       gridClass: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
@@ -946,9 +947,7 @@ const Portfolio = () => {
     ],
     'ai posts': [
       { title: 'Wedding Edit', size: 'small', img: 'https://iili.io/qSIj2Dv.md.png' },
-      { title: 'Brand Story', size: 'small', img: 'https://iili.io/qSIAQrN.md.png' },
       { title: 'Action Reel', size: 'small', img: 'https://iili.io/qSAPfkb.md.png' },
-      { title: 'Tech Future', size: 'small', img: 'https://iili.io/qSAL5ve.md.png' },
       { title: 'Abstract Art', size: 'small', img: 'https://iili.io/qSRnODG.md.png' },
       { title: 'Cyberpunk', size: 'small', img: 'https://iili.io/qS072KN.md.png' },
     ],
@@ -957,8 +956,6 @@ const Portfolio = () => {
       { title: 'Fashion Shoot', size: 'small', img: 'https://iili.io/qSAL5ve.md.png' },
       { title: 'Product Ad', size: 'small', img: 'https://iili.io/qUaEX4t.md.png' },
       { title: 'Corporate Event', size: 'small', img: 'https://iili.io/qUaVUnR.md.png' },
-      { title: 'Food Promo', size: 'small', img: 'https://iili.io/qUaSPcb.md.png' },
-      { title: 'Car Commercial', size: 'small', img: 'https://iili.io/qUaPeHu.md.png' },
     ],
     'thumbnails': [
       { title: 'Studio Session', size: 'small', img: 'https://iili.io/qU1rZWx.md.jpg' },
@@ -1003,7 +1000,7 @@ const Portfolio = () => {
             style={{ y: titleY }}
             className="text-[15vw] md:text-[12vw] font-black uppercase tracking-tighter absolute -top-12 md:-top-16 left-0 pointer-events-none text-white"
           >
-            {activeCategory}
+            {categoryThemes[activeCategory as keyof typeof categoryThemes]?.label || activeCategory}
           </motion.h2>
           <div className="flex flex-col md:flex-row md:items-end justify-between relative z-10 gap-6 md:gap-8">
             <div>
@@ -1113,6 +1110,264 @@ const Portfolio = () => {
   );
 };
 
+const VideoPlayerModal = ({ video, onClose }: { video: { url: string, title: string }, onClose: () => void }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [volume, setVolume] = useState(1);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [isMuted, setIsMuted] = useState(false);
+
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const handleProgress = () => {
+    if (videoRef.current) {
+      const current = videoRef.current.currentTime;
+      const total = videoRef.current.duration;
+      setProgress((current / total) * 100);
+    }
+  };
+
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (videoRef.current) {
+      const seekTime = (Number(e.target.value) / 100) * videoRef.current.duration;
+      videoRef.current.currentTime = seekTime;
+      setProgress(Number(e.target.value));
+    }
+  };
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
+  };
+
+  const handleVolume = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = Number(e.target.value);
+    setVolume(v);
+    if (videoRef.current) {
+      videoRef.current.volume = v;
+      setIsMuted(v === 0);
+    }
+  };
+
+  const toggleFullscreen = () => {
+    if (videoRef.current) {
+      if (videoRef.current.requestFullscreen) {
+        videoRef.current.requestFullscreen();
+      }
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 md:p-10"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="relative w-full max-w-5xl bg-black rounded-3xl overflow-hidden shadow-2xl border border-white/10"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button 
+          onClick={onClose}
+          className="absolute top-6 right-6 z-20 w-10 h-10 bg-black/50 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-brand-orange transition-colors"
+        >
+          <X size={20} />
+        </button>
+
+        <div className="relative group aspect-video bg-black">
+          <video
+            ref={videoRef}
+            src={video.url}
+            className="w-full h-full"
+            onTimeUpdate={handleProgress}
+            onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            onClick={togglePlay}
+          />
+
+          {/* Custom Controls */}
+          <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            {/* Progress Bar */}
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={progress}
+              onChange={handleSeek}
+              className="w-full h-1 bg-white/20 rounded-full appearance-none cursor-pointer accent-brand-orange mb-4"
+            />
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-6">
+                <button onClick={togglePlay} className="text-white hover:text-brand-orange transition-colors">
+                  {isPlaying ? <X size={24} /> : <Play size={24} fill="currentColor" />}
+                </button>
+
+                <div className="flex items-center gap-2 group/volume">
+                  <button onClick={toggleMute} className="text-white hover:text-brand-orange transition-colors">
+                    {isMuted || volume === 0 ? <X size={20} /> : <Palette size={20} />}
+                  </button>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    value={volume}
+                    onChange={handleVolume}
+                    className="w-0 group-hover/volume:w-20 transition-all duration-300 h-1 bg-white/20 rounded-full appearance-none cursor-pointer accent-brand-orange"
+                  />
+                </div>
+
+                <span className="text-xs font-mono text-white/60">
+                  {Math.floor((videoRef.current?.currentTime || 0) / 60)}:
+                  {Math.floor((videoRef.current?.currentTime || 0) % 60).toString().padStart(2, '0')} / 
+                  {Math.floor(duration / 60)}:
+                  {Math.floor(duration % 60).toString().padStart(2, '0')}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <button onClick={toggleFullscreen} className="text-white hover:text-brand-orange transition-colors">
+                  <ArrowUpRight size={20} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-8">
+          <h3 className="text-2xl font-black uppercase tracking-tighter text-white mb-2">{video.title}</h3>
+          <p className="text-white/50 text-sm">High-quality cinematic production by Aadarsh Sah.</p>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+const VideoSection = () => {
+  const [selectedVideo, setSelectedVideo] = useState<{ url: string, title: string } | null>(null);
+  
+  const videos = [
+    {
+      title: "Cinematic Travel Reel",
+      desc: "A journey through the mountains of Nepal, captured in 4K.",
+      thumbnail: "https://iili.io/qk4Jd5x.md.png",
+      url: "https://www.w3schools.com/html/mov_bbb.mp4" // Placeholder MP4
+    },
+    {
+      title: "Urban Nightlife",
+      desc: "Capturing the vibrant energy of the city after dark.",
+      thumbnail: "https://iili.io/qkPkOKX.md.png",
+      url: "https://www.w3schools.com/html/movie.mp4" // Placeholder MP4
+    },
+    {
+      title: "Brand Storytelling",
+      desc: "Commercial work for a leading lifestyle brand.",
+      thumbnail: "https://iili.io/qSIAQrN.md.png",
+      url: "https://www.w3schools.com/html/mov_bbb.mp4" // Placeholder MP4
+    },
+    {
+      title: "Nature's Silence",
+      desc: "Minimalist approach to nature cinematography.",
+      thumbnail: "https://iili.io/qk6kAml.md.png",
+      url: "https://www.w3schools.com/html/movie.mp4" // Placeholder MP4
+    },
+    {
+      title: "Action Sports Edit",
+      desc: "Fast-paced editing for extreme sports content.",
+      thumbnail: "https://iili.io/qSAPfkb.md.png",
+      url: "https://www.w3schools.com/html/mov_bbb.mp4" // Placeholder MP4
+    },
+    {
+      title: "Product Showcase",
+      desc: "Clean and modern product advertisement.",
+      thumbnail: "https://iili.io/qUaEX4t.md.png",
+      url: "https://www.w3schools.com/html/movie.mp4" // Placeholder MP4
+    }
+  ];
+
+  return (
+    <section id="videos" className="py-24 md:py-40 px-6 bg-black text-white relative overflow-hidden">
+      {/* Background Accents */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-brand-orange/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-orange/5 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2" />
+
+      <div className="max-w-7xl mx-auto relative z-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 md:mb-24 gap-8">
+          <Reveal>
+            <p className="font-bold uppercase tracking-[0.3em] text-xs text-brand-orange mb-3">Motion Gallery</p>
+            <h2 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-none">My <span className="text-brand-orange">Videos</span></h2>
+            <p className="text-white/50 mt-6 text-lg max-w-md">Watch my creative work and cinematic productions.</p>
+          </Reveal>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {videos.map((video, i) => (
+            <Reveal key={i} delay={i * 0.1}>
+              <TiltCard className="group relative aspect-video rounded-3xl overflow-hidden cursor-pointer shadow-2xl border border-white/5 bg-white/5 backdrop-blur-sm">
+                <div 
+                  className="w-full h-full relative"
+                  onClick={() => setSelectedVideo(video)}
+                >
+                  <img 
+                    src={video.thumbnail} 
+                    alt={video.title} 
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 brightness-75 group-hover:brightness-100"
+                    referrerPolicy="no-referrer"
+                  />
+                  
+                  {/* Play Button Overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <motion.div 
+                      whileHover={{ scale: 1.2 }}
+                      className="w-16 h-16 bg-brand-orange rounded-full flex items-center justify-center shadow-2xl shadow-brand-orange/40"
+                    >
+                      <Play size={24} fill="currentColor" className="text-black ml-1" />
+                    </motion.div>
+                  </div>
+
+                  {/* Info Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                    <h4 className="text-xl font-black uppercase tracking-tighter mb-2">{video.title}</h4>
+                    <p className="text-white/60 text-xs leading-relaxed line-clamp-2">{video.desc}</p>
+                  </div>
+                </div>
+              </TiltCard>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {selectedVideo && (
+          <VideoPlayerModal 
+            video={selectedVideo} 
+            onClose={() => setSelectedVideo(null)} 
+          />
+        )}
+      </AnimatePresence>
+    </section>
+  );
+};
+
 const Gallery = () => {
   const prefersReducedMotion = useReducedMotion();
   const images = [
@@ -1134,17 +1389,17 @@ const Gallery = () => {
           <p className="text-white/50 max-w-xl mx-auto text-lg">A collection of moments from the field, showcasing the gear, the process, and the passion.</p>
         </Reveal>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 auto-rows-[250px] md:auto-rows-[350px] grid-flow-dense">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
           {images.map((img, i) => {
             const spans = [
-              "md:col-span-2 md:row-span-1",
-              "md:col-span-2 md:row-span-1",
-              "md:col-span-1 md:row-span-1",
-              "md:col-span-1 md:row-span-1",
-              "md:col-span-1 md:row-span-1",
-              "md:col-span-1 md:row-span-1",
-              "md:col-span-2 md:row-span-1",
-              "md:col-span-1 md:row-span-1",
+              "col-span-2 md:col-span-2 aspect-video",
+              "col-span-2 md:col-span-2 aspect-video",
+              "col-span-1 md:col-span-1 aspect-square",
+              "col-span-1 md:col-span-1 aspect-square",
+              "col-span-1 md:col-span-1 aspect-square",
+              "col-span-1 md:col-span-1 aspect-square",
+              "col-span-2 md:col-span-2 aspect-video",
+              "col-span-2 md:col-span-1 aspect-video",
             ];
             return (
               <a 
@@ -1152,19 +1407,22 @@ const Gallery = () => {
                 href="https://www.instagram.com/freedomfitness2234?igsh=YWEzeDM2bWEwdXM4"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`${spans[i] || ""} relative rounded-2xl overflow-hidden group shadow-lg transition-all duration-500 cursor-pointer block`}
+                className={`${spans[i] || ""} relative rounded-2xl overflow-hidden group shadow-lg transition-all duration-500 cursor-pointer block bg-white/5`}
               >
                 <motion.img 
-                  whileHover={prefersReducedMotion ? {} : { scale: 1.03 }}
-                  transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
+                  whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
+                  transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
                   src={img} 
                   alt={`Gallery ${i}`} 
                   className="w-full h-full object-cover transition-all duration-500"
                   loading="lazy"
                   decoding="async"
+                  referrerPolicy="no-referrer"
                 />
-                <div className="absolute inset-0 bg-black/60 opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
-                  <Plus size={40} className="text-brand-orange" />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                  <div className="bg-brand-orange/90 p-3 rounded-full scale-75 group-hover:scale-100 transition-transform duration-300">
+                    <Plus size={24} className="text-black" />
+                  </div>
                 </div>
               </a>
             );
@@ -1362,6 +1620,7 @@ export default function App() {
               <About />
               <Skills />
               <Portfolio />
+              <VideoSection />
               <Gallery />
               <Services onScriptClick={() => setShowScripts(true)} />
               <Footer />

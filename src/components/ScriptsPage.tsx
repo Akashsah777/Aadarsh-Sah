@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, ChevronDown, ChevronUp, Filter, Calendar, Tag, FileText } from 'lucide-react';
+import { useSound } from '../context/SoundContext';
 
 interface Script {
   id: string;
@@ -74,12 +75,14 @@ tum bhi ‘I’m fine’ bolte ho jab tum actually fine nahi hote?”
 
 const ScriptCard = ({ script }: { script: Script }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { playSound } = useSound();
 
   return (
     <motion.div 
       layout
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      onMouseEnter={() => playSound('hover')}
       className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-brand-orange/30 transition-colors duration-300 shadow-xl shadow-black/10"
     >
       <div className="p-6 md:p-8">
@@ -103,7 +106,11 @@ const ScriptCard = ({ script }: { script: Script }) => {
           </div>
           
           <button 
-            onClick={() => setIsExpanded(!isExpanded)}
+            onClick={() => {
+              setIsExpanded(!isExpanded);
+              playSound('click');
+            }}
+            onMouseEnter={() => playSound('hover')}
             className="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-brand-orange hover:text-black text-white rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-300 border border-white/10 hover:border-transparent self-start"
           >
             {isExpanded ? (
@@ -138,6 +145,7 @@ const ScriptCard = ({ script }: { script: Script }) => {
 
 const ScriptsPage = ({ onBack }: { onBack: () => void }) => {
   const [filter, setFilter] = useState<'All' | 'Ad' | 'Reel' | 'Short Film'>('All');
+  const { playSound } = useSound();
   const categories: ('All' | 'Ad' | 'Reel' | 'Short Film')[] = ['All', 'Ad', 'Reel', 'Short Film'];
 
   const filteredScripts = filter === 'All' 
@@ -165,7 +173,11 @@ const ScriptsPage = ({ onBack }: { onBack: () => void }) => {
             transition={{ duration: 0.6 }}
           >
             <button 
-              onClick={onBack}
+              onClick={() => {
+                onBack();
+                playSound('click');
+              }}
+              onMouseEnter={() => playSound('hover')}
               className="flex items-center gap-2 text-brand-orange hover:text-white transition-colors mb-8 group"
             >
               <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
@@ -189,7 +201,11 @@ const ScriptsPage = ({ onBack }: { onBack: () => void }) => {
             {categories.map((cat) => (
               <button
                 key={cat}
-                onClick={() => setFilter(cat)}
+                onClick={() => {
+                  setFilter(cat);
+                  playSound('click');
+                }}
+                onMouseEnter={() => playSound('hover')}
                 className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${
                   filter === cat 
                     ? 'bg-brand-orange text-black shadow-lg shadow-brand-orange/20' 

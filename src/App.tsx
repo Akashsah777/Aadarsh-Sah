@@ -838,14 +838,6 @@ const Skills = () => {
               </div>
             </Reveal>
 
-            <Reveal delay={0.3}>
-              <blockquote className="border-l-4 border-[#00E676] pl-6 py-2">
-                <p className="text-lg md:text-xl font-medium italic text-white/80 leading-relaxed">
-                  "A true designer doesn't depend on tools — he creates impact with vision and execution!"
-                </p>
-              </blockquote>
-            </Reveal>
-
             <Reveal delay={0.4}>
               <motion.button 
                 whileHover={{ 

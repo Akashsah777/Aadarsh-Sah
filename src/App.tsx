@@ -1567,8 +1567,8 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-16 md:mb-24">
           <Reveal className="lg:col-span-2">
             <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-10 leading-none">Let's create<br />something <span className="text-brand-orange">epic</span>.</h2>
-            <a href="mailto:hello@aadarshsah.com" className="text-xl md:text-3xl font-bold underline hover:text-brand-orange transition-all duration-300 group inline-block break-all">
-              <span className="inline-block">hello@aadarshsah.com</span>
+            <a href="mailto:aadarshsah306@gmail.com" className="text-xl md:text-3xl font-bold underline hover:text-brand-orange transition-all duration-300 group inline-block break-all">
+              <span className="inline-block">aadarshsah306@gmail.com</span>
             </a>
           </Reveal>
           

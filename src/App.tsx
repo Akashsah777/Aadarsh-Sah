@@ -910,14 +910,13 @@ const Skills = () => {
   );
 };
 
-const Portfolio = () => {
-  const [activeCategory, setActiveCategory] = useState('social media posts');
+const Portfolio = ({ activeCategory, setActiveCategory }: { activeCategory: string, setActiveCategory: (cat: string) => void }) => {
   const { scrollYProgress } = useScroll();
   const isMobile = useIsMobile();
   const prefersReducedMotion = useReducedMotion();
   const titleY = useTransform(scrollYProgress, [0, 1], [0, isMobile || prefersReducedMotion ? 0 : -150]);
   
-  const categories = ['social media posts', 'ai posts', 'commercial work', 'thumbnails'];
+  const categories = ['social media posts', 'ai posts', 'commercial work', 'thumbnails & logos'];
 
   const categoryThemes = {
     'social media posts': {
@@ -941,12 +940,12 @@ const Portfolio = () => {
       cardStyle: "aspect-[2/3]",
       label: "Commercial"
     },
-    'thumbnails': {
+    'thumbnails & logos': {
       gridClass: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
       accent: "bg-[#D500F9]",
       bg: "bg-[#1a1218]",
-      cardStyle: "aspect-video",
-      label: "Thumbnails"
+      cardStyle: "", // Removed global aspect ratio to allow individual item aspect ratios
+      label: "Thumbnails & Logos"
     }
   };
 
@@ -973,13 +972,16 @@ const Portfolio = () => {
       { title: 'Product Ad', size: 'small', img: 'https://iili.io/qUaEX4t.md.png' },
       { title: 'Corporate Event', size: 'small', img: 'https://iili.io/qUaVUnR.md.png' },
     ],
-    'thumbnails': [
-      { title: 'Studio Session', size: 'small', img: 'https://iili.io/qU1rZWx.md.jpg' },
-      { title: 'Portrait Study', size: 'small', img: 'https://iili.io/qU1ivp9.md.png' },
-      { title: 'Landscape View', size: 'small', img: 'https://iili.io/qU1QhBa.md.png' },
-      { title: 'Night City', size: 'small', img: 'https://iili.io/qUEl3U7.md.png' },
-      { title: 'Morning Light', size: 'small', img: 'https://iili.io/qUEG2Lb.md.png' },
-      { title: 'Vlog Cover', size: 'small', img: 'https://iili.io/qUEWOyN.md.jpg' },
+    'thumbnails & logos': [
+      { title: 'Studio Session', size: 'small', img: 'https://iili.io/qU1rZWx.md.jpg', link: 'https://youtu.be/ULPhTxEgXug?si=Def7Rz8mZ2QCuxgM', aspect: 'aspect-video' },
+      { title: 'Portrait Study', size: 'small', img: 'https://iili.io/qU1ivp9.md.png', aspect: 'aspect-video' },
+      { title: 'Landscape View', size: 'small', img: 'https://iili.io/qU1QhBa.md.png', aspect: 'aspect-video' },
+      { title: 'Night City', size: 'small', img: 'https://iili.io/qUEl3U7.md.png', link: 'https://youtu.be/3qh4nYmBKjk?si=pKs0XPoby3KzrMHB', aspect: 'aspect-video' },
+      { title: 'Morning Light', size: 'small', img: 'https://iili.io/qUEG2Lb.md.png', link: 'https://youtu.be/EkTRzXNtri8?si=qu4ZIFcwPqOE9XBU', aspect: 'aspect-video' },
+      { title: 'Vlog Cover', size: 'small', img: 'https://iili.io/qUEWOyN.md.jpg', link: 'https://youtu.be/iMr73w0i_hg?si=-ya7VYI2OA3MKUw6', aspect: 'aspect-video' },
+      { id: 'logo-1', title: 'Logo Design 1', size: 'small', img: 'https://iili.io/q4zB8dB.md.png', link: '#', aspect: 'aspect-square' },
+      { id: 'logo-2', title: 'Logo Design 2', size: 'small', img: 'https://iili.io/q4zMsCG.md.png', link: '#', aspect: 'aspect-square' },
+      { id: 'logo-3', title: 'Logo Design 3', size: 'small', img: 'https://iili.io/q4zDx2f.md.png', link: '#', aspect: 'aspect-square' },
     ]
   };
 
@@ -1077,10 +1079,10 @@ const Portfolio = () => {
                 transition={{ duration: 0.5, delay: i * 0.05 }}
               >
                 <TiltCard 
-                  className={`relative rounded-2xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-500 ${currentTheme.cardStyle}`}
+                  className={`relative rounded-2xl overflow-hidden group cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-500 ${project.aspect || currentTheme.cardStyle}`}
                 >
                   <motion.div 
-                    onClick={() => project.link && window.open(project.link, '_blank')}
+                    onClick={() => window.open(project.link || project.img, '_blank')}
                     whileHover={isMobile || prefersReducedMotion ? {} : { 
                       y: -10,
                       borderRadius: activeCategory === 'ai posts' ? "0px" : "40px 16px 40px 16px"
@@ -1362,7 +1364,7 @@ const VideoSection = () => {
           {categories.map((category) => {
             const isVertical = category === 'Reel' || category === 'Shorts';
             return (
-              <div key={category} className="space-y-12">
+              <div key={category} id={category.toLowerCase()} className="space-y-12">
                 <Reveal>
                   <div className="flex items-center gap-6">
                     <h3 className="text-3xl md:text-5xl font-black uppercase tracking-tighter">{category}</h3>
@@ -1422,7 +1424,7 @@ const Gallery = () => {
   const prefersReducedMotion = useReducedMotion();
   const images = [
     'https://iili.io/qUGCmyN.md.png',
-    'https://iili.io/qUGxhTN.md.png',
+    'https://iili.io/q4fgBcv.md.png',
     'https://iili.io/qUGAedg.md.png',
     'https://iili.io/qUaPeHu.md.png',
     'https://iili.io/qUGVFvp.md.png',
@@ -1431,11 +1433,22 @@ const Gallery = () => {
     'https://iili.io/qUGyPVV.md.png',
   ];
 
+  const customLinks: { [key: number]: string } = {
+    0: 'https://youtu.be/GXA7oVpIs1c?si=oMKyvhIN1SNp41Qu',
+    1: 'https://youtu.be/f0JUuWcuy9M?si=qXNvAbgW0C4vamLy',
+    2: 'https://www.facebook.com/share/p/1DoYAsVgwy/?mibextid=wwXIfr',
+    3: 'https://www.facebook.com/share/p/1DeDTLGgYT/',
+    4: 'https://www.facebook.com/share/p/18QmVbh7bt/?mibextid=wwXIfr',
+    5: 'https://www.facebook.com/share/p/188Jnn3PWa/',
+    6: 'https://youtu.be/tEpZYvyXbgk?si=tf9DpyyxZrOs2uKH',
+    7: 'https://www.facebook.com/share/p/1GrMna5jBN/?mibextid=wwXIfr'
+  };
+
   return (
     <section id="gallery" className="py-24 md:py-40 px-6 bg-black text-white">
       <div className="max-w-7xl mx-auto">
         <Reveal className="text-center mb-16 md:mb-24">
-          <h2 className="text-4xl md:text-8xl font-black uppercase tracking-tighter mb-6">My Work For <span className="text-brand-orange">Freedom Agency</span></h2>
+          <h2 className="text-4xl md:text-8xl font-black uppercase tracking-tighter mb-6">My Work For <span className="text-brand-orange">Freedom Fitness Agency</span></h2>
           <p className="text-white/50 max-w-xl mx-auto text-lg">A collection of moments from the field, showcasing the gear, the process, and the passion.</p>
         </Reveal>
 
@@ -1449,12 +1462,12 @@ const Gallery = () => {
               "col-span-1 md:col-span-1 aspect-square",
               "col-span-1 md:col-span-1 aspect-square",
               "col-span-2 md:col-span-2 aspect-video",
-              "col-span-2 md:col-span-1 aspect-video",
+              "col-span-2 md:col-span-2 aspect-video",
             ];
             return (
               <a 
                 key={i} 
-                href="https://www.instagram.com/freedomfitness2234?igsh=YWEzeDM2bWEwdXM4"
+                href={customLinks[i] || img}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`${spans[i] || ""} relative rounded-2xl overflow-hidden group shadow-lg transition-all duration-500 cursor-pointer block bg-white/5`}
@@ -1483,13 +1496,13 @@ const Gallery = () => {
   );
 };
 
-const Services = ({ onScriptClick }: { onScriptClick: () => void }) => {
+const Services = ({ onScriptClick, onGraphicDesignClick }: { onScriptClick: () => void, onGraphicDesignClick: () => void }) => {
   const isMobile = useIsMobile();
   const prefersReducedMotion = useReducedMotion();
   const services = [
-    { icon: <Camera />, title: 'Photo Shoots', desc: 'Professional photography for portraits, events, and brands.' },
+    { icon: <Camera />, title: 'Photo Shoots', desc: 'Professional photography for portraits, events, and brands.', link: 'https://www.facebook.com/share/p/1CD4qbHRXc/' },
     { icon: <PenTool />, title: 'Script Writing', desc: 'Creative and compelling scripts for videos and stories. Click to view my scripts.' },
-    { icon: <Scissors />, title: 'Video Editing', desc: 'Cinematic edits, reels, and YouTube content.' },
+    { icon: <Scissors />, title: 'Video Editing', desc: 'Cinematic edits, reels, and YouTube content.', link: '#cinematic' },
     { icon: <Palette />, title: 'Graphic Designing', desc: 'Stunning visual designs for brands and social media.' },
   ];
 
@@ -1504,10 +1517,10 @@ const Services = ({ onScriptClick }: { onScriptClick: () => void }) => {
           </Reveal>
           
           <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
-            {services.map((service, i) => (
-              <Reveal key={i} delay={i * 0.1}>
+            {services.map((service: any, i) => {
+              const CardContent = (
                 <motion.div 
-                  onClick={service.title === 'Script Writing' ? onScriptClick : undefined}
+                  onClick={service.title === 'Script Writing' ? onScriptClick : service.title === 'Graphic Designing' ? onGraphicDesignClick : undefined}
                   whileHover={isMobile || prefersReducedMotion ? {} : { 
                     y: -10, 
                     boxShadow: "0 30px 60px -12px rgba(0, 0, 0, 0.25), 0 18px 36px -18px rgba(0, 0, 0, 0.3)",
@@ -1515,7 +1528,7 @@ const Services = ({ onScriptClick }: { onScriptClick: () => void }) => {
                     borderColor: "rgba(255, 159, 28, 0.4)"
                   }}
                   whileTap={{ scale: 0.97, borderRadius: "32px" }}
-                  className={`p-10 bg-white/40 backdrop-blur-xl rounded-2xl shadow-xl shadow-black/5 transition-all duration-500 group border border-white/20 h-full relative overflow-hidden ${service.title === 'Script Writing' ? 'cursor-pointer' : ''}`}
+                  className={`p-10 bg-white/40 backdrop-blur-xl rounded-2xl shadow-xl shadow-black/5 transition-all duration-500 group border border-white/20 h-full relative overflow-hidden ${service.title === 'Script Writing' || service.title === 'Graphic Designing' || service.link ? 'cursor-pointer' : ''}`}
                 >
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-orange to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   
@@ -1540,8 +1553,25 @@ const Services = ({ onScriptClick }: { onScriptClick: () => void }) => {
                     </div>
                   )}
                 </motion.div>
-              </Reveal>
-            ))}
+              );
+
+              return (
+                <Reveal key={i} delay={i * 0.1}>
+                  {service.link ? (
+                    <a 
+                      href={service.link} 
+                      target={service.link.startsWith('http') ? "_blank" : undefined} 
+                      rel={service.link.startsWith('http') ? "noopener noreferrer" : undefined} 
+                      className="block h-full"
+                    >
+                      {CardContent}
+                    </a>
+                  ) : (
+                    CardContent
+                  )}
+                </Reveal>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -1585,7 +1615,7 @@ const Footer = () => {
               ].map((item) => (
                 <li key={item.name}>
                   <Magnetic>
-                    <a href={item.name === 'YouTube' ? "https://youtube.com/@adarsh-motion3?si=mb9vm4x8ZcHzlW39" : item.name === 'Facebook' ? "https://www.facebook.com/share/17S9LvBhnz/?mibextid=wwXIfr" : item.name === 'Instagram' ? "https://www.instagram.com/aadarsh_motion?igsh=MTV0b285YmI1YTRnaA%3D%3D&utm_source=qr" : "#"} target={item.name === 'YouTube' || item.name === 'Facebook' || item.name === 'Instagram' ? "_blank" : undefined} className="flex items-center gap-3 hover:text-brand-orange transition-all duration-300 cursor-pointer py-2">
+                    <a href={item.name === 'YouTube' ? "https://youtube.com/@adarsh-motion3?si=mb9vm4x8ZcHzlW39" : item.name === 'Facebook' ? "https://www.facebook.com/share/17S9LvBhnz/?mibextid=wwXIfr" : item.name === 'Instagram' ? "https://www.instagram.com/aadarsh_motion?igsh=MTV0b285YmI1YTRnaA%3D%3D&utm_source=qr" : item.name === 'WhatsApp' ? "https://wa.me/9779709026078?text=I%20want%20to%20hire%20you" : "#"} target={item.name === 'YouTube' || item.name === 'Facebook' || item.name === 'Instagram' || item.name === 'WhatsApp' ? "_blank" : undefined} className="flex items-center gap-3 hover:text-brand-orange transition-all duration-300 cursor-pointer py-2">
                       {item.icon} <ScrambleText text={item.name} />
                     </a>
                   </Magnetic>
@@ -1615,7 +1645,16 @@ export default function App() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showContent, setShowContent] = useState(false);
   const [showScripts, setShowScripts] = useState(false);
+  const [activeCategory, setActiveCategory] = useState('social media posts');
   const { scrollYProgress } = useScroll();
+
+  const handleGraphicDesignClick = () => {
+    setActiveCategory('thumbnails & logos');
+    const portfolioSection = document.getElementById('portfolio');
+    if (portfolioSection) {
+      portfolioSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <div className="relative">
@@ -1670,10 +1709,13 @@ export default function App() {
               <Hero />
               <About />
               <Skills />
-              <Portfolio />
+              <Portfolio activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
               <VideoSection />
               <Gallery />
-              <Services onScriptClick={() => setShowScripts(true)} />
+              <Services 
+                onScriptClick={() => setShowScripts(true)} 
+                onGraphicDesignClick={handleGraphicDesignClick}
+              />
               <Footer />
               
               <div className="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-50">

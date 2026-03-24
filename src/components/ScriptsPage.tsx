@@ -50,25 +50,112 @@ Bas hum pehle jaise nahi rahe”
   },
   {
     id: '2',
-    title: "I'm Fine",
-    description: 'A relatable and deep script exploring the common habit of hiding true emotions behind a simple "I\'m fine".',
-    category: 'Reel',
+    title: "Gaming Channel Comeback",
+    description: "A heartfelt script about returning to gaming after a long break, overcoming challenges, and starting a new chapter.",
+    category: 'Other',
     date: 'March 2026',
     content: `
-“Kabhi notice kiya hai…
-hum ‘I’m fine’ kitni baar bol dete hain…
-jabki hum fine hote hi nahi.”
+🎙️ (Intro – 0:00 – 0:40)
 
-Middle:
-“Log puchte hain ‘sab thik hai?’
-aur hum bas smile karke bol dete hain ‘haan’.”
+“1 saal…
+Haan, 1 saal ho gaya aap sab ko milay hue.
+Kabhi socha bhi nahi tha ki main itna lamba break lunga.
+Shayad aap me se kai log soch rahe honge — ‘Bhai kahaan gaya?’
 
-“Par sach ye hai…
-kuch baatein kisi ko samjhana possible hi nahi hota.”
+Sach kahu toh… life ne thoda pause maar diya tha.
+Game ka jo fire tha mere andar… wo kabhi bujha nahi. 🔥
+Lekin kuch baatein aisi hui jinke baare me baat karni chahiye.”
 
-Ending (engagement line):
-“Sach batao…
-tum bhi ‘I’m fine’ bolte ho jab tum actually fine nahi hote?”
+🎙️ (Story Time – 0:40 – 2:30)
+
+“Sabse pehle… doston ne dhokha diya.
+Jin logon ko apna samjha, unhone hi piche se vaar kiya.
+Us time laga — sab kuch khatam ho gaya.
+
+PUBG ka ID bechna pada 💔
+Khelne ke liye device bhi acha nahi tha…
+Har din dil me ye chubta tha ki main kuch kar nahi pa raha.
+
+Ghar ki zimmedari bhi aagayi…
+Din bhar tension, aur raat ko bas sochta rehta tha — ‘ab kya?’
+Dheere dheere maine apne aap ko sabse door kar liya.
+Akelepan ko maine apna comfort zone bana liya…
+Lekin andar se dil me sirf ek awaaz aati thi —
+“Yaar… tu is liye nahi bana tha.””
+
+🎙️ (Turning Point – 2:30 – 3:40)
+
+“Aur aaj main yahi kehne aaya hoon…
+Main wapas aa gaya hoon.
+Main apne aap ko is comfort zone se bahar nikal raha hoon.
+Kyunki main jaanta hoon — ye channel sirf ek channel nahi…
+Ye meri kahani hai. Mera sapna hai. 🫡🔥
+
+Jis cheez ke liye maine ye channel shuru kiya tha —
+ab main usi pe full focus karunga.
+PUBG se shuruaat hui thi…
+GTA aur naye games ke saath ab naye chapter ki shuruaat hone wali hai.”
+
+🎙️ (Motivation & Message to Viewers – 3:40 – 4:40)
+
+“Main akele khelne wala gamer nahi hoon…
+Aap sab mere sath ho.
+Aapka support hi meri strength hai 💪
+Is baar sirf content nahi aayega…
+is baar energy, fire aur consistency aayegi.
+
+Mujhe pata hai — zero se shuruaat mushkil hoti hai,
+lekin mujhe bhi pata hai — main akela nahi hoon.
+Aap sab mere family ho ❤️”
+
+🎙️ (Outro – 4:40 – 5:00)
+
+“Agar aap purane ho — welcome back squad 🔥
+Agar naye ho — subscribe karo, kyunki asli game ab shuru ho raha hai.”
+    `
+  },
+  {
+    id: '3',
+    title: 'Freedom Fitness Promo & Review',
+    description: 'A promotional script and member review format for Freedom Fitness.',
+    category: 'Ad',
+    date: 'March 2026',
+    content: `
+🎥 GYM JOIN गर्नु अघि के सोच्ने?
+What to Consider Before Joining a Gym
+
+“Gym join गर्नु अघि सबैभन्दा पहिले आफ्नो goal clear गर्नुहोस्।
+के तपाईं weight loss चाहनुहुन्छ, muscle gain, वा overall fitness?
+
+Fitness short-term motivation होइन, यो long-term commitment हो।
+Consistency बिना कुनै पनि result सम्भव हुँदैन।
+
+सही gym environment र qualified trainer छनौट गर्नु अत्यन्त महत्वपूर्ण हुन्छ।
+Proper guidance ले तपाईंको progress छिटो बनाउँछ र injury को risk कम गर्छ।
+
+Freedom Fitness मा हामी तपाईंको goal अनुसार structured training र proper support प्रदान गर्छौं।
+
+
+2
+
+🎥 1️⃣ Nepali Member Review Script
+🎤 Intro
+
+“आज हामी Freedom Fitness का एक सदस्यसँग छोटो प्रतिक्रिया लिँदैछौं 💪
+उहाँको अनुभव सुन्नौं।”
+
+❓ Questions
+
+“तपाईं Freedom Fitness मा कति समयदेखि training गर्दै हुनुहुन्छ?”
+“Gym join गर्दा तपाईंको goal के थियो?”
+“अहिलेसम्म कस्तो progress महसुस गर्नुभएको छ?”
+“यहाँको environment र trainer support कस्तो लाग्यो?”
+“के तपाईं अरूलाई पनि यहाँ join गर्न recommend गर्नुहुन्छ? किन?”
+
+🎤 Closing
+
+“धन्यवाद तपाईंको प्रतिक्रिया का लागि।
+Freedom Fitness — जहाँ तपाईंको progress हाम्रो priority हो”
     `
   }
 ];

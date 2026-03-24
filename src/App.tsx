@@ -854,25 +854,6 @@ const Skills = () => {
                 </p>
               </div>
             </Reveal>
-
-            <Reveal delay={0.4}>
-              <motion.button 
-                whileHover={isMobile ? {} : { 
-                  scale: 1.05, 
-                  backgroundColor: "#00E676", 
-                  color: "#000", 
-                  boxShadow: "0 10px 30px -10px rgba(0, 230, 118, 0.5)",
-                  borderRadius: "12px",
-                  borderColor: "transparent"
-                }}
-                whileTap={{ scale: 0.97 }}
-                transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                className="px-10 py-4 min-h-[44px] rounded-full border border-white/20 text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 w-fit mt-4"
-                onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                Hire Me
-              </motion.button>
-            </Reveal>
           </div>
 
           {/* Right Side */}
